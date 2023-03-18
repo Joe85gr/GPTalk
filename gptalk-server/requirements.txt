@@ -1,0 +1,8 @@
+# To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
+fastapi[all]==0.94.1
+uvicorn[standard]==0.21.1
+gunicorn==20.1.0
+openai==0.27.0
+starlette==0.26.1
+pydantic==1.10.6
+pyyaml==6.0

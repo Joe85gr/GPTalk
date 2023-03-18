@@ -1,0 +1,159 @@
+.navbar {
+  height: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  border: 0 solid #d9d9e3;
+  border-bottom-width: 1px;
+  border-color: hsla(0,0%,100%,.2);
+  background-color: #343541;
+  
+  padding-left: 0.5rem;
+  padding-right:0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1; 
+  min-width: 400px;
+}
+
+.nav-item {
+  box-shadow: 0 0 2px #ccc;
+}
+
+.nav-button {
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-align: left;
+  cursor: pointer;
+  color: white;
+}
+
+.nav-button:hover {
+  background-color: rgb(255,255,255, 0.3);
+}
+
+.nav-button:active  {
+  background-color: rgb(255,255,255, 0.5);
+}
+
+.main-container {
+  min-width: 360px;
+  height: 100%;
+  margin-top: 50px;
+  color: white;
+  box-sizing: border-box;
+  height: calc(100vh - 160px);
+  overflow-y: auto;
+  background-color: #343541;
+}
+
+textarea {
+  height: 100%;
+}
+
+.footer-info {
+  height: 30px;
+  width: 100%;
+  position: fixed;
+  color: white;
+  align-self: center;
+  text-align: center;
+  justify-content: center;
+  bottom: 80px;
+  background-color: #343541;
+  padding: 12px;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.h-4 {
+  height: 1rem;
+}
+
+.nav-container {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+
+.nav-info {
+  display: none;
+}
+
+.nav-container-secondary { 
+  flex-direction: row-reverse;
+}
+
+
+@media screen and (min-width: 700px) {
+  .navbar {
+    background-color: #202123;
+    flex-direction: column;
+    width: 200px;
+    height: 100%;
+    padding: 0.5rem;
+    min-width: 200px;
+    border: none;
+  }
+
+  .main-container {
+    margin-left: 200px;
+    margin-top: 0;
+    height: calc(100vh - 110px);
+  }
+
+
+  .footer-info {
+    width: calc(100% - 200px);
+    left: 200px;
+  }
+
+.nav-container {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-border {
+  box-sizing: border-box;
+  border: 0 solid #d9d9e3;
+  border-bottom-width: 1px;
+  border-color: hsla(0,0%,100%,.2);
+}
+  .nav-item {
+    width: 100%;
+    box-shadow: 0 0 2px #ccc;
+    background-color: #202123;
+  }
+  .nav-button {
+    padding: 12px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    color: white;
+    margin-bottom: auto;
+  }
+
+  .nav-button span {
+    padding-left: 6px;
+    padding-right: 12px;
+  }
+
+  .nav-info {
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+    color: white;
+  }
+}
+
+
