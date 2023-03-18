@@ -17,8 +17,10 @@ origins = [
     "http://localhost",
     "http://localhost:3000",
     "http://localhost:3000/*",
-    "http://chatgptclient",
-    "http://chatgptclient/*",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3000/*",
+    "http://172.20.0.11",
+    "http://172.20.0.11/*",
 ]
 
 app.add_middleware(
@@ -30,14 +32,14 @@ app.add_middleware(
 )
 
 
-@app.post("/messages")
+@app.post("/api/messages")
 async def create_messages(request: Request):
     logging.info("Processing request 'messages'..")
     data = _client.get_model_response(await request.json())
     return data
 
 
-@app.get("/models")
+@app.get("/api/models")
 async def get_models():
     logging.info("Processing request 'models'..")
     data = _client.get_all_models()

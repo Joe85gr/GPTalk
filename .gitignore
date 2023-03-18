@@ -46,3 +46,4 @@ test/*.js
 .vscode
 venv
 gptalk-client/package-lock.json
+**/__pycache__

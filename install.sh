@@ -62,16 +62,21 @@ fi
 
 if [[ ! -e ./$server_name/$user_config_dir ]]; then
     mkdir ./$server_name/$user_config_dir
-    echo 'openai:\n\tplaceholder: IGNORE_ME' >> ./$server_name/$user_config_dir/config.yml
+    echo $'openai:\n    placeholder: IGNORE_ME' >> ./$server_name/$user_config_dir/config.yml
 fi
+
+# Removes existing containers if exists
+docker rm --force $server_name || true
+docker rm --force $client_name || true
 
 # Build Docker images
 docker build -t $server_name:latest -f ./$server_name.Dockerfile .
 docker build -t $client_name:latest -f ./$client_name.Dockerfile .
 
 # Create docker networks so that the containers can communicate with each other
-docker network create --driver bridge $network_name || true
+docker network rm $network_name || true
+docker network create --subnet=172.20.0.0/16 --driver bridge $network_name
 
 # Run Docker containers
-docker run -d --name $server_name --network $network_name -p 127.0.0.1:8000:8000 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${OPENAI_API_KEY} $server_name:latest
-docker run -d --name $client_name --network $network_name -p 80:80 $client_name:latest
+docker run -d --name $server_name --network $network_name --ip 172.20.0.10 -p 8000:8000 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${OPENAI_API_KEY} $server_name:latest
+docker run -d --name $client_name --network $network_name --ip 172.20.0.11 -p 80:80 $client_name:latest
