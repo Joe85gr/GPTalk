@@ -41,14 +41,17 @@
 }
 
 .main-container {
+  width: 100%;
+  top: 50px;
   min-width: 360px;
   height: 100%;
-  margin-top: 50px;
-  color: white;
+  /* margin-top: 50px; */
+  color: #fff;
   box-sizing: border-box;
   height: calc(100vh - 160px);
   overflow-y: auto;
   background-color: #343541;
+  position: sticky;
 }
 
 textarea {
@@ -105,6 +108,7 @@ textarea {
   }
 
   .main-container {
+    top: 0;
     margin-left: 200px;
     margin-top: 0;
     height: calc(100vh - 110px);
