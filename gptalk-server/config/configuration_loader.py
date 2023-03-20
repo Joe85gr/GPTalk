@@ -1,23 +1,12 @@
-from abc import ABC, abstractmethod
-
 from config.configuration import Configuration
 from yaml import safe_load
+from constants import CONFIG_FULL_PATH
 
 
-class IConfigLoader(ABC):
+class ConfigLoader:
     @staticmethod
-    @abstractmethod
-    def set_config() -> str:
-        pass
+    def get_config() -> Configuration:
+        with open(CONFIG_FULL_PATH, "r") as file:
+            rawConfig = safe_load(file)
 
-
-class ConfigLoader(IConfigLoader):
-    @staticmethod
-    def set_config() -> Configuration:
-        try:
-            with open(f"./user_config/config.yml", "r") as file:
-                rawConfig = safe_load(file)
-
-            return Configuration(**rawConfig)
-        except:
-            return Configuration()
+        return Configuration(**rawConfig)
