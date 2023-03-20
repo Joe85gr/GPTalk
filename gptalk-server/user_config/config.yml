@@ -3,4 +3,4 @@ gptalk:
     max_log_size: 10 # max log size in MB
 
 openai:
-    placeholder: IGNORE_ME
+    behaviour: "talk like a bro"
