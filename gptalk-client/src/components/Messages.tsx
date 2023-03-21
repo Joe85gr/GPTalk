@@ -5,16 +5,16 @@ import "./Messages.css";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, nord, coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CodeProps } from "react-markdown/lib/ast-to-react";
+import { Message } from '../infrastructure/Api'
 
 
-export interface IMessage {
-    role: string;
-    content: string;
-    className?: string;
-    totalTokens?: string;
-  }
+export interface IConversation {
+  chat_id: number;
+  messages: Array<Message>;
+  total_tokens: number;
+}
   
- export const ChatMessage: React.FC<IMessage>  = (message) => {
+ export const ChatMessage: React.FC<Message>  = (message) => {
     return (
       <div className={`chat-message ${message.role}`}>
         <div className="chat-message-center">

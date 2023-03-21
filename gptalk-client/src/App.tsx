@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { ScrollToBottom, FilterMessages } from './Utilities'
-import { ChatMessage, IMessage } from './components/Messages';
+import { ChatMessage } from './components/Messages';
 import { TypingAnimation } from './components/TypingAnimation';
 import { Input } from './components/Input';
 import { ModelSelect, ModelsProps } from './components/ModelSelect';
 import { Configuration } from './global';
-import { LoadModels, GetReply } from './infrastructure/Api'
+import { LoadModels, GetReply, CreateChat, GetConversation, GetConversations, Message, ModelReply } from './infrastructure/Api'
 
 import './App.css';
 import './normal.css';
@@ -16,26 +16,29 @@ function App() {
     { label: "gpt-3.5-turbo", value: "gpt-3.5-turbo" },
   ];
 
-  const defaultMessage: IMessage[] = [ 
+  const defaultMessage: Message[] = [ 
     {role: "system", content: Configuration.GPT_BEHAVIOUR},
   ] 
 
-  const storedChatLog = window.localStorage.getItem('chatLog');
-
-  const initialMessage: IMessage[] = storedChatLog == null 
-    ? defaultMessage
-    : JSON.parse(storedChatLog);
+  const currentChatId = window.localStorage.getItem('chat_id');
 
   const [input, setInput] = useState("");
-  const [totalTokens, setTotalTokens] = useState(
-    window.localStorage.getItem('total_tokens') == null
-      ? "0"
-      : window.localStorage.getItem('total_tokens'));
 
   let [model, setModel] = useState(defaultModels[0].value);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const conversations: ModelReply[] = []
+  const [storedConversations, setStoredConversations] = useState(conversations);
 
-  const [chatLog, setChatLog] = useState(initialMessage);
+  const [chatId, setChatId] = useState(currentChatId);
+
+  const initialChatLog: ModelReply = { 
+    messages:defaultMessage, 
+    total_tokens: 0, 
+    chat_id: chatId ? chatId : undefined,
+    model,
+    chat_description: "new chat"};
+  
+  const [chatLog, setChatLog] = useState(initialChatLog);
   const [models, setModels] = useState(defaultModels);
 
   const messagesEndRef = useRef<HTMLDivElement>(null); 
@@ -44,11 +47,29 @@ function App() {
     ScrollToBottom(messagesEndRef)
   }, [chatLog]);
 
-  function clearChat(){
-    window.localStorage.removeItem('chatLog');
-    window.localStorage.removeItem('total_tokens');
-    setTotalTokens("0");
-    setChatLog(defaultMessage);
+  async function newChat(){
+    window.localStorage.removeItem('chat_id');
+
+    const response = await CreateChat();
+    setChatLog(response);
+
+    console.log("newChat response", response);
+    if(response.chat_id){
+      window.localStorage.setItem('chat_id', String(response.chat_id));
+      setChatId(String(response.chat_id))
+    }
+  }
+
+  async function loadChat(chatId: number){
+
+    const response = await GetConversation(chatId);
+    setChatLog(response);
+
+    console.log("loadChat response", response);
+    if(response.chat_id){
+      window.localStorage.setItem('chat_id', String(response.chat_id));
+      setChatId(String(response.chat_id))
+    }
   }
 
   const onEnterPress = (e: React.KeyboardEvent) => {
@@ -66,7 +87,34 @@ function App() {
       const models = await LoadModels();
       setModels(models);
     }
+
+    async function loadChatLog(chatId: number) {
+      const storedConversation = await GetConversation(chatId);
+
+      if(storedConversation){
+        setChatLog(storedConversation);
+      } else {
+        window.localStorage.removeItem('chat_id');
+        await newChat()
+      }
+     }
+
+     async function loadChats() { 
+        const storedConversations = await GetConversations();
+        if(storedConversations) {
+          setStoredConversations(storedConversations)
+          console.log("storedConversations:", storedConversations);
+        } else { 
+          console.log("No storedConversations.");
+         }
+     }
+
     loadModels();
+    loadChats();
+
+    if(currentChatId) {
+      loadChatLog(Number(currentChatId));
+    }
   }, [])
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -78,35 +126,55 @@ function App() {
 
     setIsLoading(true);
 
+    if(chatId === null || chatId === undefined){
+      await newChat();
+    }
     const message = { "role": "user", "content": input};
     setInput("");
 
-    const newChatLog = [...chatLog, message];
-    window.localStorage.setItem('chatLog', JSON.stringify(newChatLog));
+    const newChatLog: ModelReply = { 
+      messages: [...chatLog.messages, message], 
+      total_tokens: 1, 
+      chat_id: chatLog.chat_id,
+      model,
+      chat_description: chatLog.chat_description};
 
-    setChatLog([...chatLog, message]);
+    setChatLog(newChatLog);
 
-    const messages = newChatLog.filter((message) => FilterMessages(message, "error"));
+    const request: ModelReply = { 
+      messages: newChatLog.messages.filter((message) => FilterMessages(message, "error")),
+      total_tokens: newChatLog.total_tokens, 
+      chat_id: newChatLog.chat_id,
+      model,
+      chat_description: newChatLog.chat_description};
 
-    const data = await GetReply(messages, model);
+    const data = await GetReply(request);
 
-    window.localStorage.setItem('chatLog', JSON.stringify(data.messages));
-    window.localStorage.setItem('total_tokens', JSON.stringify(data.total_tokens));
-
-    setTotalTokens(data.total_tokens);
-    setChatLog(data.messages);
+    setChatLog(data);
     setIsLoading(false);
   }
 
   return (
     <div id="main">
       <div className="navbar">
-        <div className="nav-container nav-border">
-          <a className="nav-button nav-item" onClick={clearChat}>
+        <div className="nav-container">
+          <a className="nav-button nav-item" onClick={newChat}>
             New Chat
           </a>
         </div>
-        <div className="nav-container nav-container-secondary">
+        <div className="nav-container-middle">
+
+        {
+        
+        storedConversations
+              .map((modelReply, i) => (
+                <a className="nav-chats" key={modelReply.chat_id} onClick={() => loadChat(Number(modelReply.chat_id))}>
+                  {modelReply.chat_id}
+                </a>
+            ))
+            }
+        </div>
+        <div className="nav-container nav-container-secondary nav-border-top">
           <div className='nav-info'>
               Model
           </div>
@@ -119,22 +187,30 @@ function App() {
 
       <div className="main-container">
 
-        {chatLog
-          .filter((message: IMessage) => FilterMessages(message, "system"))
-          .map((message, index) => (
-          <ChatMessage key={index} {...message}/>
-        ))}
+        {
+        
+        chatLog
+          .messages
+          .filter((message: Message) => FilterMessages(message, "system"))
+          .map((message, i) => (
+          <ChatMessage key={i} {...message}/>
+        ))
+        }
+
+      { !chatId && <div className='new-chat'> Create new Chat to start</div>}
   
       <div ref={messagesEndRef} />
         {isLoading && <TypingAnimation />}
       </div>
-      <div className="footer-info">Total Tokens: {totalTokens}</div>
+      { chatId && <div>
+      <div className="footer-info">Total Tokens: {chatLog.total_tokens}</div>
         <Input
           handleSubmit={handleSubmit} 
           onEnterPress={onEnterPress}
           setInput={setInput}
           input={input}
-          />
+          /> 
+          </div>}
     </div>
 
   );

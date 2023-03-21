@@ -15,11 +15,19 @@ class Chat(BaseModel):
 
 class IDatabase(ABC):
     @abstractmethod
-    def add_new_chat(self, content) -> bool:
+    def add_new_chat(self) -> bool:
         pass
 
     @abstractmethod
     def get_chat(self, chat_id):
+        pass
+
+    @abstractmethod
+    def delete_chat(self, chat_id):
+        pass
+
+    @abstractmethod
+    def get_chats(self):
         pass
 
     @abstractmethod
@@ -49,12 +57,12 @@ class Sqlite(IDatabase):
         except SqliteError as e:
             self.logger.error(e)
 
-    def add_new_chat(self, content) -> str:
+    def add_new_chat(self) -> str:
         try:
             with self.sqlite.connect(f"{CONFIG_PATH}/{APP_NAME}.db") as con:
                 cur = con.cursor()
                 is_active = True
-                data = (is_active, content,)
+                data = (is_active, "",)
                 cur.execute(f""" INSERT INTO chats (is_active,content)
                                     VALUES (?,?)
                             """, data)
@@ -76,8 +84,50 @@ class Sqlite(IDatabase):
                                  FROM chats
                                  WHERE chat_id = ?
                             """, data)
-                content = cur.fetchone()[0]
-                return json.loads(content)
+                content = cur.fetchone()
+
+                if content is None:
+                    return None
+                return content[0]
+        except SqliteError as e:
+            con.rollback()
+            self.logger.error(e)
+
+            return "error"
+
+    def delete_chat(self, chat_id):
+        try:
+            with self.sqlite.connect(f"{CONFIG_PATH}/{APP_NAME}.db") as con:
+                cur = con.cursor()
+                data = (chat_id,)
+                a = cur.execute(f""" DELETE
+                                 FROM chats
+                                 WHERE chat_id = ?
+                            """, data)
+                con.commit()
+
+                return cur.rowcount == 1
+        except SqliteError as e:
+            con.rollback()
+            self.logger.error(e)
+
+            return False
+
+    def get_chats(self):
+        try:
+            with self.sqlite.connect(f"{CONFIG_PATH}/{APP_NAME}.db") as con:
+                cur = con.cursor()
+                cur.execute(f""" SELECT content
+                                 FROM chats
+                                 WHERE content != ''
+                                 and content IS NOT NULL
+                            """)
+                content = cur.fetchall()
+
+                if content is None:
+                    return None
+                data = [row[0] for row in content]
+                return data
         except SqliteError as e:
             con.rollback()
             self.logger.error(e)

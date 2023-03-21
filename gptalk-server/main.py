@@ -1,4 +1,5 @@
 import uvicorn
+import sqlite3
 
 from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
@@ -6,7 +7,6 @@ from infrastructure.chatgpt import OpenaiClient
 from config.configuration_loader import ConfigLoader
 from logger import GPTalkLog
 from infrastructure.db import Sqlite
-import sqlite3
 from services.messagesService import MessageService
 
 app = FastAPI()
@@ -36,31 +36,46 @@ app.add_middleware(
 )
 
 
-@app.post("/api/messages")
+@app.post("/api/handle_conversation")
 async def handle_conversation(request: Request):
     _logger.info("Processing request 'messages'..")
     data = _messageService.handle_conversation(await request.json())
     return data
 
 
-@app.post("/api/new_chat")
-async def create_new_chat():
-    _logger.info("Adding new chat..")
-    new_chat_id = _messageService.create_conversation()
-    return { "chat_id": new_chat_id }
-
-@app.get("/api/models")
-async def get_models():
-    _logger.info("Processing request 'models'..")
-    data = _client.get_all_models()
+@app.get("/api/conversations/")
+async def get_conversation(chat_id: int | None = None):
+    _logger.info(f"Getting conversation with chat id:{chat_id}..")
+    data = _messageService.get_conversations()
     return data
 
 
-@app.get("/api/conversation/{chat_id}")
+@app.get("/api/conversations/{chat_id}")
 async def get_conversation(chat_id: int):
     _logger.info(f"Getting conversation with chat id:{chat_id}..")
     data = _messageService.get_conversation(chat_id)
     return data
+
+
+@app.delete("/api/conversations/{chat_id}")
+async def delete_conversation(chat_id: int):
+    _logger.info(f"Deleting conversation with chat id:{chat_id}..")
+    deleted = _messageService.delete_conversation(chat_id)
+    return {"deleted": deleted}
+
+
+@app.post("/api/new_chat")
+async def create_new_chat():
+    _logger.info("Adding new chat..")
+    conversation = _messageService.create_conversation()
+    return conversation
+
+
+@app.get("/api/models")
+async def get_models():
+    _logger.info("Processing request 'models'..")
+    models = _client.get_all_models()
+    return {"models": models}
 
 
 if __name__ == "__main__":

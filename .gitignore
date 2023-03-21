@@ -48,3 +48,4 @@ venv
 gptalk-client/package-lock.json
 **/__pycache__
 *.db
+package-lock.json

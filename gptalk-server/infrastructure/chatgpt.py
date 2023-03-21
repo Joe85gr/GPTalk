@@ -27,7 +27,8 @@ class OpenaiClient(IOpenaiClient):
             self.logger.debug("Loading models..")
             model_lst = openai.Model.list()
             self.logger.debug("ModelService loaded!")
-            return model_lst['data']
+            models = [row['id'] for row in model_lst['data']]
+            return models
 
         except (APIConnectionError, TimeoutError) as e:
             ex = e
@@ -49,8 +50,6 @@ class OpenaiClient(IOpenaiClient):
         openai.api_key = os.getenv("OPENAI_API_KEY")
         total_tokens = 0
         role = "error"
-        ex = None
-
         try:
             self.logger.debug("Getting chat completition..")
             completion = openai.ChatCompletion.create(
@@ -62,27 +61,27 @@ class OpenaiClient(IOpenaiClient):
             role = "assistant"
             self.logger.debug("Chat completition retrieved successfully!")
         except (APIConnectionError, TimeoutError) as e:
-            ex = e
             content = 'Error: Unable to connect to the server.'
+            self.logger.error(f"OpenaiClient {content}", e)
         except AuthenticationError as e:
-            ex = e
             content = 'Error: Unable to authenticate with openai.'
+            self.logger.error(f"OpenaiClient {content}", e)
         except RateLimitError as e:
-            ex = e
             content = f'Error: Model {request["model"]} is currently overloaded with other ' \
                        f'requests. '
+            self.logger.error(f"OpenaiClient {content}", e)
         except Exception as e:
-            ex = e
             content = f'Error: Unknown Error.'
-
-        if ex:
-            self.logger.error(f"OpenaiClient {content}", ex)
+            self.logger.error(f"OpenaiClient {content}", e)
 
         data = {
             "chat_id": request['chat_id'],
             "messages": request['messages'],
             "total_tokens": total_tokens
         }
+
+        # role = "assistant"
+        # content = "all good.."
 
         data['messages'].append({"role": role, "content": content})
 
