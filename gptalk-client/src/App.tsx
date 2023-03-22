@@ -88,6 +88,7 @@ function App() {
   async function loadChat(chatId: number) {
 
     const response = await GetConversation(chatId);
+    
     setChatLog(response);
 
     console.log("loadChat response", response);
@@ -177,6 +178,11 @@ function App() {
     const data = await GetReply(request);
 
     setChatLog(data);
+
+    if(newChatLog.chat_description == "new chat") {
+        await loadChats()
+    }
+
     setIsLoading(false);
   }
 
@@ -196,7 +202,7 @@ function App() {
                       className={`nav-chats ${chatId == modelReply.chat_id && 'nav-chats-current'}`} 
                       key={modelReply.chat_id} 
                       onClick={() => loadChat(Number(modelReply.chat_id))}>
-                    {modelReply.chat_id}
+                    { modelReply.chat_description}
                     { modelReply.chat_id == chatId && <div ref={chatRefs} />}
                   </a>
               ))
@@ -222,7 +228,7 @@ function App() {
               <ChatMessage key={i} {...message}/> 
           ))
         }
-      { !chatId && <div className='new-chat'> Create new Chat to start</div>}
+      { !chatId && <div className='app-title'>GPTalk</div>}
   
       <div ref={messagesEndRef} />
         {isLoading && <TypingAnimation />}

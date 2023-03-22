@@ -68,7 +68,7 @@ class OpenaiClient(IOpenaiClient):
             self.logger.error(f"OpenaiClient {content}", e)
         except RateLimitError as e:
             content = f'Error: Model {request["model"]} is currently overloaded with other ' \
-                       f'requests. '
+                      f'requests. '
             self.logger.error(f"OpenaiClient {content}", e)
         except Exception as e:
             content = f'Error: Unknown Error.'
@@ -86,3 +86,21 @@ class OpenaiClient(IOpenaiClient):
         data['messages'].append({"role": role, "content": content})
 
         return data
+
+    def get_chat_description(self, messages: [dict], model: str):
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+
+        content = None
+        messages.append({"role": "user", "content": "tl;dr of this conversation. 3 words max."})
+
+        try:
+            self.logger.debug("Getting chat completition..")
+            completion = openai.ChatCompletion.create(
+                model=model,
+                messages=messages)
+
+            content = completion.choices[0].message.content
+        except Exception as e:
+            self.logger.error(f"OpenaiClient {content}", e)
+
+        return content

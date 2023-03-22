@@ -1,7 +1,7 @@
 import uvicorn
 import sqlite3
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from infrastructure.chatgpt import OpenaiClient
 from config.configuration_loader import ConfigLoader
@@ -54,6 +54,8 @@ async def get_conversation(chat_id: int | None = None):
 async def get_conversation(chat_id: int):
     _logger.info(f"Getting conversation with chat id:{chat_id}..")
     data = _messageService.get_conversation(chat_id)
+    if data is None:
+        raise HTTPException(status_code=404, detail="chat_id not found")
     return data
 
 

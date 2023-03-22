@@ -29,7 +29,9 @@ class MessageService:
 
     def get_conversation(self, chat_id):
         conversation = self.db.get_chat(chat_id)
-        return json.loads(conversation)
+        if conversation is not None:
+            return json.loads(conversation)
+        return None
 
     def delete_conversation(self, chat_id):
         deleted = self.db.delete_chat(chat_id)
@@ -45,5 +47,11 @@ class MessageService:
 
     def handle_conversation(self, request: dict):
         response = self.openai.get_model_response(request)
+
+        if "chat_description" not in response:
+            messages = [m for m in request['messages']]
+            model = request['model']
+            response['chat_description'] = self.openai.get_chat_description(messages, model)
+
         self.db.update_chat(response['chat_id'], json.dumps(response))
         return response

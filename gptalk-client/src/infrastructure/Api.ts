@@ -88,6 +88,7 @@ export async function GetConversation(chatId: number) {
           return data as ModelReply;
       }
 
+      console.log(response.status);
       throw new Error(response.statusText);
       
   }
