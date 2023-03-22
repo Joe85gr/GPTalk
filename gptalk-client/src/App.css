@@ -87,7 +87,7 @@ textarea {
 }
 
 
-.nav-info {
+.nav-hide {
   display: none;
 }
 
@@ -148,6 +148,8 @@ textarea {
   flex-direction: column;
   overflow-y: auto;
   padding: 12px;
+  position: relative;
+  scroll-margin: 20px;
 }
 
 .nav-border-top {
@@ -181,6 +183,11 @@ textarea {
   color: white;
   flex-direction: column;
   cursor: pointer;
+}
+
+.nav-chats-current {
+  background-color: rgb(255,255,255, 0.1);
+  scroll-margin: 20px;
 }
 
 .nav-chats:hover{

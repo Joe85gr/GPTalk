@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { ScrollToBottom, FilterMessages } from './Utilities'
+import { ScrollDivToRef, FilterMessages, ScrollToRef, Timeout } from './Utilities'
 import { ChatMessage } from './components/Messages';
 import { TypingAnimation } from './components/TypingAnimation';
 import { Input } from './components/Input';
@@ -42,10 +42,34 @@ function App() {
   const [models, setModels] = useState(defaultModels);
 
   const messagesEndRef = useRef<HTMLDivElement>(null); 
+  const chatRefs = useRef<HTMLDivElement>(null); 
 
   useEffect(() => {
-    ScrollToBottom(messagesEndRef)
+
+  ScrollNavbar();
+
+  }, [storedConversations]);
+
+  useEffect(() => {
+    ScrollDivToRef(messagesEndRef)
+    
   }, [chatLog]);
+
+  async function ScrollNavbar(chatid?: string) { 
+    await Timeout(500);
+    console.log("chatRefs triggered");
+    let id;
+    if(chatid) {
+      id = chatid;
+    } else { 
+      id = chatId;
+    }
+    let form = document.getElementById(`chat-${id}`);
+    console.log(form);
+    if(form) { 
+      ScrollToRef(form);
+    }
+}
 
   async function newChat(){
     window.localStorage.removeItem('chat_id');
@@ -58,9 +82,10 @@ function App() {
       window.localStorage.setItem('chat_id', String(response.chat_id));
       setChatId(String(response.chat_id))
     }
+    loadChats();
   }
 
-  async function loadChat(chatId: number){
+  async function loadChat(chatId: number) {
 
     const response = await GetConversation(chatId);
     setChatLog(response);
@@ -68,8 +93,19 @@ function App() {
     console.log("loadChat response", response);
     if(response.chat_id){
       window.localStorage.setItem('chat_id', String(response.chat_id));
-      setChatId(String(response.chat_id))
+      setChatId(String(response.chat_id));
+      ScrollNavbar(response.chat_id)
     }
+  }
+
+  async function loadChats() { 
+    const storedConversations = await GetConversations();
+    if(storedConversations) {
+      setStoredConversations(storedConversations)
+      console.log("storedConversations:", storedConversations);
+    } else { 
+      console.log("No storedConversations.");
+     }
   }
 
   const onEnterPress = (e: React.KeyboardEvent) => {
@@ -97,16 +133,6 @@ function App() {
         window.localStorage.removeItem('chat_id');
         await newChat()
       }
-     }
-
-     async function loadChats() { 
-        const storedConversations = await GetConversations();
-        if(storedConversations) {
-          setStoredConversations(storedConversations)
-          console.log("storedConversations:", storedConversations);
-        } else { 
-          console.log("No storedConversations.");
-         }
      }
 
     loadModels();
@@ -162,20 +188,22 @@ function App() {
             New Chat
           </a>
         </div>
-        <div className="nav-container-middle">
-
+        <div className="nav-container-middle nav-border nav-hide">
         {
-        
-        storedConversations
-              .map((modelReply, i) => (
-                <a className="nav-chats" key={modelReply.chat_id} onClick={() => loadChat(Number(modelReply.chat_id))}>
-                  {modelReply.chat_id}
-                </a>
-            ))
+          storedConversations
+                .map((modelReply, i) => (
+                  <a id={`chat-${modelReply.chat_id}`} 
+                      className={`nav-chats ${chatId == modelReply.chat_id && 'nav-chats-current'}`} 
+                      key={modelReply.chat_id} 
+                      onClick={() => loadChat(Number(modelReply.chat_id))}>
+                    {modelReply.chat_id}
+                    { modelReply.chat_id == chatId && <div ref={chatRefs} />}
+                  </a>
+              ))
             }
         </div>
         <div className="nav-container nav-container-secondary nav-border-top">
-          <div className='nav-info'>
+          <div className='nav-info nav-hide '>
               Model
           </div>
           <ModelSelect 
@@ -186,17 +214,14 @@ function App() {
       </div>
 
       <div className="main-container">
-
         {
-        
-        chatLog
-          .messages
-          .filter((message: Message) => FilterMessages(message, "system"))
-          .map((message, i) => (
-          <ChatMessage key={i} {...message}/>
-        ))
+          chatLog
+            .messages
+            .filter((message: Message) => FilterMessages(message, "system"))
+            .map((message, i) => (
+              <ChatMessage key={i} {...message}/> 
+          ))
         }
-
       { !chatId && <div className='new-chat'> Create new Chat to start</div>}
   
       <div ref={messagesEndRef} />
