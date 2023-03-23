@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactMarkdown from "react-markdown";
-import { SvgError, SvgGptLogo } from "./Avatars";
-import "./Messages.css";
+import { SvgError, SvgGptLogo } from "./Svg";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, nord, coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CodeProps } from "react-markdown/lib/ast-to-react";
@@ -15,16 +14,27 @@ export interface IConversation {
 }
   
  export const ChatMessage: React.FC<Message>  = (message) => {
+
+    let bg = "";
+
+    if (message.role === "assistant")
+    {
+      bg = 'bg-gray-700';
+    }
+    else if (message.role === "error") {
+      bg = 'bg-red-200 bg-opacity-50';
+    }
+
     return (
-      <div className={`chat-message ${message.role}`}>
-        <div className="chat-message-center">
-          <div className={`chat-avatar ${message.role}`}>
+      <div className={`${bg} mr-2`}> 
+        <div className="p-8 text-left flex">
+          <div className="self-center rounded-full w-6 h-6 text-white bg-black">
               {
                 (message.role === "assistant" && <SvgGptLogo />) ||
                 (message.role === "error" && <SvgError />)
               }
           </div>
-          <div className="message">
+          <div className="pr-8 pl-8 text-white overflow-x-auto">
             <ReactMarkdown 
               children={message.content}
               components={{

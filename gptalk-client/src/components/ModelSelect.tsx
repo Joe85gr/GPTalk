@@ -15,6 +15,7 @@ export interface ModelsProps {
 export const ModelSelect: React.FC<Props> = (props) => {
     return (
         <Select 
+        className=''
         theme={(theme) => ({
           ...theme,
           borderRadius: 5,

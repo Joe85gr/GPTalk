@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { ScrollDivToRef, FilterMessages, ScrollToRef, Timeout } from './Utilities'
 import { ChatMessage } from './components/Messages';
-import { TypingAnimation } from './components/TypingAnimation';
+import { LoadingAnimation } from './components/LoadingAnimation';
 import { Input } from './components/Input';
 import { ModelSelect, ModelsProps } from './components/ModelSelect';
 import { Configuration } from './global';
@@ -52,12 +52,10 @@ function App() {
 
   useEffect(() => {
     ScrollDivToRef(messagesEndRef)
-    
   }, [chatLog]);
 
   async function ScrollNavbar(chatid?: string) { 
     await Timeout(500);
-    console.log("chatRefs triggered");
     let id;
     if(chatid) {
       id = chatid;
@@ -71,7 +69,7 @@ function App() {
     }
 }
 
-  async function newChat(){
+  async function NewChat(){
     window.localStorage.removeItem('chat_id');
 
     const response = await CreateChat();
@@ -82,24 +80,31 @@ function App() {
       window.localStorage.setItem('chat_id', String(response.chat_id));
       setChatId(String(response.chat_id))
     }
-    loadChats();
+    LoadChats();
   }
 
-  async function loadChat(chatId: number) {
+  // async function DeleteChat(e: React.SyntheticEvent<HTMLFormElement>) {
+  //   window.localStorage.removeItem('chat_id');
+  //   e.preventDefault();
+  //   await DeleteChat();
 
+  //   console.log("deleted");
+
+  //   LoadChats();
+  // }
+
+  async function LoadChat(chatId: number) {
     const response = await GetConversation(chatId);
-    
-    setChatLog(response);
-
+  
     console.log("loadChat response", response);
-    if(response.chat_id){
+    if(response && response.chat_id){
       window.localStorage.setItem('chat_id', String(response.chat_id));
       setChatId(String(response.chat_id));
       ScrollNavbar(response.chat_id)
     }
   }
 
-  async function loadChats() { 
+  async function LoadChats() { 
     const storedConversations = await GetConversations();
     if(storedConversations) {
       setStoredConversations(storedConversations)
@@ -125,22 +130,28 @@ function App() {
       setModels(models);
     }
 
-    async function loadChatLog(chatId: number) {
+    async function LoadChatLog(chatId: number) {
       const storedConversation = await GetConversation(chatId);
 
       if(storedConversation){
         setChatLog(storedConversation);
       } else {
         window.localStorage.removeItem('chat_id');
-        await newChat()
+
+        if(!storedConversations){
+          await NewChat()
+        } else { 
+          setChatId(null)
+        }
       }
      }
 
     loadModels();
-    loadChats();
+    LoadChats();
 
     if(currentChatId) {
-      loadChatLog(Number(currentChatId));
+      console.log("currentChatId:", currentChatId);
+      LoadChatLog(Number(currentChatId));
     }
   }, [])
 
@@ -154,7 +165,7 @@ function App() {
     setIsLoading(true);
 
     if(chatId === null || chatId === undefined){
-      await newChat();
+      await NewChat();
     }
     const message = { "role": "user", "content": input};
     setInput("");
@@ -180,7 +191,7 @@ function App() {
     setChatLog(data);
 
     if(newChatLog.chat_description == "new chat") {
-        await loadChats()
+        await LoadChats()
     }
 
     setIsLoading(false);
@@ -190,7 +201,7 @@ function App() {
     <div id="main">
       <div className="navbar">
         <div className="nav-container">
-          <a className="nav-button nav-item" onClick={newChat}>
+          <a className="nav-button nav-item" onClick={NewChat}>
             New Chat
           </a>
         </div>
@@ -201,7 +212,7 @@ function App() {
                   <a id={`chat-${modelReply.chat_id}`} 
                       className={`nav-chats ${chatId == modelReply.chat_id && 'nav-chats-current'}`} 
                       key={modelReply.chat_id} 
-                      onClick={() => loadChat(Number(modelReply.chat_id))}>
+                      onClick={() => LoadChat(Number(modelReply.chat_id))}>
                     { modelReply.chat_description}
                     { modelReply.chat_id == chatId && <div ref={chatRefs} />}
                   </a>
@@ -231,7 +242,7 @@ function App() {
       { !chatId && <div className='app-title'>GPTalk</div>}
   
       <div ref={messagesEndRef} />
-        {isLoading && <TypingAnimation />}
+        {isLoading && <LoadingAnimation />}
       </div>
       { chatId && <div>
       <div className="footer-info">Total Tokens: {chatLog.total_tokens}</div>

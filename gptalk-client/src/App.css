@@ -20,6 +20,36 @@
   min-width: 400px;
 }
 
+.footer-input {
+  /* width: calc(100% - 260px) !important; */
+  width: 100% !important;
+
+  height: 130px !important;
+}
+
+.calc-height {
+  height: calc(100% - 170px) !important;
+  overflow: auto;
+}
+
+
+@media screen and (min-width: 640px) {
+  .footer-input {
+    width: calc(100% - 260px) !important;
+    height: 170px;
+  }
+
+  .display-none {
+    display: none !important;
+  }
+
+  .calc-height {
+    height: calc(100% - 130px) !important;
+    overflow: auto;
+  }
+}
+
+/* 
 .nav-item {
   box-shadow: 0 0 2px #ccc;
 }
@@ -38,25 +68,25 @@
 
 .nav-button:active  {
   background-color: rgb(255,255,255, 0.5);
-}
+} */
 
-.main-container {
-  /* width: 100%; */
+/* .main-container {
+  width: 100%;
   top: 50px;
   min-width: 360px;
   height: 100%;
-  /* margin-top: 50px; */
+  margin-top: 50px;
   color: #fff;
   box-sizing: border-box;
   height: calc(100vh - 160px);
   overflow-y: auto;
   background-color: #343541;
   position: sticky;
-}
+} */
 
-textarea {
+/* textarea {
   height: 100%;
-}
+} */
 
 .footer-info {
   height: 30px;
@@ -71,14 +101,14 @@ textarea {
   padding: 12px;
 }
 
-.w-4 {
+/* .w-4 {
   width: 1rem;
 }
 
 .h-4 {
   height: 1rem;
-}
-
+} */
+/* 
 .nav-container {
   flex: 1;
   width: 100%;
@@ -93,7 +123,7 @@ textarea {
 
 .nav-container-secondary { 
   flex-direction: row-reverse;
-}
+} */
 
 .app-title {
     text-align: center;
@@ -106,7 +136,7 @@ textarea {
     font-weight: 600;
 }
 
-
+/* 
 @media screen and (min-width: 700px) {
   .navbar {
     background-color: #202123;
@@ -228,4 +258,4 @@ textarea {
   }
 }
 
-
+ */
