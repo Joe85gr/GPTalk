@@ -3,4 +3,4 @@ gptalk:
     max_log_size: 10 # max log size in MB
 
 openai:
-    behaviour: "talk like a bro"
+    behaviour: "talk like a bro, use markdown code highlighting"

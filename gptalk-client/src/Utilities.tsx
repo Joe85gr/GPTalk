@@ -1,4 +1,4 @@
-import { Message } from "./infrastructure/Api";
+import { Message } from "./infrastructure/client";
 
 export const ScrollDivToRef = (ref:  React.RefObject<HTMLDivElement>) => {
     if(ref && ref.current)
