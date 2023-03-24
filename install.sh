@@ -22,28 +22,22 @@ network_name=$app_name-network
 user_config_dir='user_config'
 server_config_filename='config.yml'
 
-# Parse command-line arguments
-while getopts ":key:" opt; do
-  case ${opt} in
-    key )
-      OPENAI_API_KEY=$OPTARG
-      ;;
-    \? )
-      echo "${Red} Invalid option: -$OPTARG${Color_Off}" >&2
-      exit 1
-      ;;
-    : )
-      echo "${Red} Option -$OPTARG requires an argument.${Color_Off}" >&2
-      exit 1
-      ;;
-  esac
+PORT=80
+
+while getopts k: flag
+do
+  # echo ${OPTARG}
+    case "${flag}" in
+        # p) PORT=${OPTARG};;
+        k) API_KEY=${OPTARG};;
+    esac
 done
 
 # Check if any parameters were provided
 if [ $# -eq 0 ]; then
 
   echo "${Yellow}Warning: No OpenAI API key provided. Attempting to retrieve OpenAI API key from environmental variables..${Color_Off}"
-  OPENAI_API_KEY=${OPENAI_API_KEY}
+  API_KEY=${OPENAI_API_KEY}
 
   if [ -z "${OPENAI_API_KEY}" ]; then
     echo "${Red}Error: Unable to retrieve OpenAI API key from environmental variables. Please provide an OpenAI API key with the -key parameter.${Color_Off}"
@@ -55,7 +49,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Check if OPENAI_API_KEY is set
-if [ -z "${OPENAI_API_KEY}" ]; then
+if [ -z "${API_KEY}" ]; then
   echo "${Red}Error: -key parameter is required. Please provide an OpenAI API key with the -key parameter.${Color_Off}"
   exit 1
 fi
@@ -78,5 +72,5 @@ docker network rm $network_name || true
 docker network create --subnet=172.20.0.0/16 --driver bridge $network_name
 
 # Run Docker containers
-docker run -d --name $server_name --network $network_name --ip 172.20.0.10 -p 8000:8000 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${OPENAI_API_KEY} $server_name:latest
-docker run -d --name $client_name --network $network_name --ip 172.20.0.11 -p 80:80 $client_name:latest
+docker run -d --name $server_name --network $network_name --ip 172.20.0.10 -p 8000:8000 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${API_KEY} $server_name:latest
+docker run -d --name $client_name --network $network_name --ip 172.20.0.11 -p ${PORT}:80 $client_name:latest
