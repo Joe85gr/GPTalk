@@ -80,7 +80,7 @@ class OpenaiClient(IOpenaiClient):
             "total_tokens": total_tokens
         }
 
-        # role = "assistant"
+        role = "assistant"
         # content = "all good.."
 
         data['messages'].append({"role": role, "content": content})
@@ -91,13 +91,15 @@ class OpenaiClient(IOpenaiClient):
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
         content = None
-        messages.append({"role": "user", "content": "tl;dr of this conversation. 3 words max."})
+
+        u = messages[1]['content']
+        m = [{"role": "user", "content": f"tl;dr of the following text, max 3 words: {u}"}]
 
         try:
             self.logger.debug("Getting chat completition..")
             completion = openai.ChatCompletion.create(
                 model=model,
-                messages=messages)
+                messages=m)
 
             content = completion.choices[0].message.content
         except Exception as e:

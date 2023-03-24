@@ -62,7 +62,7 @@ fi
 
 if [[ ! -e ./$server_name/$user_config_dir ]]; then
     mkdir ./$server_name/$user_config_dir
-    echo $'openai:\n    placeholder: IGNORE_ME' >> ./$server_name/$user_config_dir/config.yml
+    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
 fi
 
 # Removes existing containers if exists

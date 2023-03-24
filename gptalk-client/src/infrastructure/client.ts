@@ -1,7 +1,12 @@
 import { Configuration } from "../global";
 import { FilterMessages } from '../Utilities'
 
-export async function LoadModels() {
+export interface Model {
+  label: string;
+  value: string;
+}
+
+export async function GetModels() {
     try {
       const response = await fetch(`${Configuration.API_BASE_URL}/models/`, {
         method: "GET",
@@ -13,7 +18,7 @@ export async function LoadModels() {
       const data = await response.json()
       const m = data.models
         .filter((model: string) => { return model.includes("gpt")})
-        .map((model: string) => { return{ label: model, value: model } })
+        .map((model: string) => { return { label: model, value: model } as Model })
 
       return m;
     } 
@@ -64,7 +69,6 @@ export async function GetReply(modelReply: ModelReply) {
         throw new Error(response.statusText);
     }
     catch (error) {
-        // console.log(error);
         const message: Message = { role:"error", content: "Error! Unable to connect to chatgpt server." };
         requestContent.messages.push(message)
 
@@ -72,10 +76,9 @@ export async function GetReply(modelReply: ModelReply) {
       }
 }
 
-export async function GetConversation(chatId: number) {
+export async function GetConversation(chatId: number): Promise<ModelReply>  {
 
   try {
-      // console.log("GetReply requestContent", requestContent);
       const response = await fetch(`${Configuration.API_BASE_URL}/conversations/${chatId}`, {
         method: "GET",
         headers: {
@@ -86,14 +89,12 @@ export async function GetConversation(chatId: number) {
       if (response.status === 200) {
           const data = await response.json();
           return data as ModelReply;
+      } else {
+        console.log(response.status);
+        throw new Error(response.statusText);
       }
-
-      console.log(response.status);
-      throw new Error(response.statusText);
-      
   }
   catch (error) {
-      // console.log(error);
       const message: Message = { role:"error", content: "Error! Unable to connect to chatgpt server." };
       const reply: ModelReply = { 
         messages: [message], 
@@ -159,7 +160,8 @@ export async function CreateChat() {
     }
 }
 
-export async function DeleteChat(chat_id: number) {
+export async function DeleteConversation(chat_id: string) {
+
   try {
       const response = await fetch(`${Configuration.API_BASE_URL}/conversations/${chat_id}`, {
         method: "DELETE",
@@ -167,23 +169,9 @@ export async function DeleteChat(chat_id: number) {
           "Content-Type": "application/json"
         },
       });
-
-
-      if (response.status === 200) {
-        const data = await response.json();
-        return data as ModelReply;
-    }
-
-    return { 
-        messages: [{ "role": "error", "content": "Error! Unable to connect to chatgpt server." }], 
-        total_tokens: 0  
-    } as ModelReply;
-
   }
   catch (error) {
-      return { 
-          messages: [{ "role": "error", "content": "Error! Unable to connect to chatgpt server." }], 
-          total_tokens: 0  
-      } as ModelReply;
+    console.log("DeleteConversation Error:",error);
+      return { } 
     }
 }
