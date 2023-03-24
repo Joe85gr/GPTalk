@@ -57,7 +57,6 @@ function App() {
 
     async function LoadChats() { 
       const chats = await chatHandler.LoadChats();
-      console.log("Loaded chats", chats);
       if(chats) {
           setStoredConversations(chats)
       } else { 
@@ -69,7 +68,6 @@ function App() {
       window.localStorage.removeItem('chat_id');
       
       const response = await chatHandler.GetNewChat();
-      console.log("New chat", response);
       setChatLog(response);
   
       if(response.chat_id){
@@ -88,7 +86,6 @@ function App() {
     await LoadChats();
 
     if(currentChatId == chatIdToDelete) { 
-        console.log("Deleting chatId from storage", currentChatId);
         window.localStorage.removeItem('chat_id');
         setChatId(null)
         setChatLog(DefaultModeLReply)
