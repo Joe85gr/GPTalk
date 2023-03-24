@@ -56,9 +56,10 @@ function App() {
     }
 
     async function LoadChats() { 
-      const storedConversations = await chatHandler.LoadChats();
-      if(storedConversations) {
-          setStoredConversations(storedConversations)
+      const chats = await chatHandler.LoadChats();
+      console.log("Loaded chats", chats);
+      if(chats) {
+          setStoredConversations(chats)
       } else { 
         console.log("No storedConversations.");
        }
@@ -68,6 +69,7 @@ function App() {
       window.localStorage.removeItem('chat_id');
       
       const response = await chatHandler.GetNewChat();
+      console.log("New chat", response);
       setChatLog(response);
   
       if(response.chat_id){
@@ -102,6 +104,7 @@ function App() {
       setChatId: setChatId,
       setChatLog: setChatLog
     }
+
     const chatHandler = new ChatHadler(params)
 
     async function OnClickLoadChat(chatId: string | undefined) { 
@@ -116,22 +119,20 @@ function App() {
        }
     }
 
-    useEffect(() => {
+    async function LoadChatLog(chatId: string) { 
+      const chat = await chatHandler.GetChatLog(chatId);
+      if(chat){
+        setChatLog(chat);
+      } else {
+        window.localStorage.removeItem('chat_id');
+        setChatId(null)
+      }
+    }
 
+    useEffect(() => {
       async function SetModels() { 
         const models = await chatHandler.GetModels();
         setModels(models)
-      }
-
-      async function LoadChatLog(chatId: string) { 
-        const storedConversation = await chatHandler.GetChatLog(chatId);
-
-        if(storedConversation){
-          setChatLog(storedConversation);
-        } else {
-          window.localStorage.removeItem('chat_id');
-          await chatHandler.GetNewChat()
-        }
       }
       
       SetModels();

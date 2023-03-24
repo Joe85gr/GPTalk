@@ -76,7 +76,7 @@ export async function GetReply(modelReply: ModelReply) {
       }
 }
 
-export async function GetConversation(chatId: number): Promise<ModelReply>  {
+export async function GetConversation(chatId: number): Promise<ModelReply | undefined>  {
 
   try {
       const response = await fetch(`${Configuration.API_BASE_URL}/conversations/${chatId}`, {
@@ -91,7 +91,7 @@ export async function GetConversation(chatId: number): Promise<ModelReply>  {
           return data as ModelReply;
       } else {
         console.log(response.status);
-        throw new Error(response.statusText);
+        return undefined;
       }
   }
   catch (error) {
