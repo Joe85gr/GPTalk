@@ -29,7 +29,7 @@ The install script will:
 ________________________________________________________________
 ## Overview:
 ### Mobile View
-![](https://github.com/Joe85gr/GPTalk/blob/main/docs/imgs/mobile.png?raw=true)
+![](https://github.com/Joe85gr/GPTalk/blob/main/docs/imgs/mobile1.png?raw=true)
 ![](https://github.com/Joe85gr/GPTalk/blob/main/docs/imgs/mobile2.png?raw=true)
 
 ### Desktop View
