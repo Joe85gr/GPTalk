@@ -4,13 +4,12 @@ import sqlite3
 from fastapi import FastAPI, Request, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
-from infrastructure.cache import Cache
 from infrastructure.chatgpt import OpenaiClient
 from config.configuration_loader import ConfigLoader
 from logger import GPTalkLog
 from infrastructure.db import Sqlite
 from services.messagesService import MessageService
-from infrastructure.caching import Cache
+from infrastructure.cache import Cache
 
 app = FastAPI()
 
