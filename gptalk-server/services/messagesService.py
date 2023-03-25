@@ -3,13 +3,25 @@ import json
 from infrastructure.chatgpt import OpenaiClient
 from config.configuration import OpenaiConfig
 from infrastructure.db import IDatabase
+from infrastructure.caching import Cache
 
 
 class MessageService:
-    def __init__(self, openai: OpenaiClient, db: IDatabase, config: OpenaiConfig):
+    def __init__(self, openai: OpenaiClient, db: IDatabase, config: OpenaiConfig, cache: Cache):
         self.openai = openai
         self.db = db
         self.config = config
+        self.cache = cache
+
+    def get_models(self):
+        cachedModels = self.cache.getFromCache('models')
+        if cachedModels is not None:
+            models = json.loads(cachedModels)
+        else:
+            models = self.openai.get_all_models()
+            self.cache.setCache("models", json.dumps(models))
+
+        return models
 
     def create_conversation(self):
         modelBehaviour = {"role": "system", "content": self.config.behaviour}

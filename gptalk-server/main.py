@@ -8,6 +8,7 @@ from config.configuration_loader import ConfigLoader
 from logger import GPTalkLog
 from infrastructure.db import Sqlite
 from services.messagesService import MessageService
+from infrastructure.caching import Cache
 
 app = FastAPI()
 
@@ -15,7 +16,10 @@ _config = ConfigLoader.get_config()
 _logger = GPTalkLog(_config.gptalk).get_logger('__main__')
 _client = OpenaiClient(_logger)
 _db = Sqlite(_logger, sqlite3)
-_messageService = MessageService(_client, _db, _config.openai)
+_cache = Cache()
+_messageService = MessageService(_client, _db, _config.openai, _cache)
+
+models = _messageService.get_models()
 
 origins = [
     "http://localhost",
@@ -76,7 +80,7 @@ async def create_new_chat():
 @app.get("/api/models")
 async def get_models():
     _logger.info("Processing request 'models'..")
-    models = _client.get_all_models()
+    models = _messageService.get_models()
     return {"models": models}
 
 

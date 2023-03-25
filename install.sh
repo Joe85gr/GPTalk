@@ -18,6 +18,7 @@ White='\033[0;37m'        # White
 app_name='gptalk'
 client_name=$app_name-client
 server_name=$app_name-server
+redis_name=$app_name-redis
 network_name=$app_name-network
 user_config_dir='user_config'
 server_config_filename='config.yml'
@@ -74,3 +75,4 @@ docker network create --subnet=172.20.0.0/16 --driver bridge $network_name
 # Run Docker containers
 docker run -d --name $server_name --network $network_name --ip 172.20.0.10 -p 8000:8000 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${API_KEY} $server_name:latest
 docker run -d --name $client_name --network $network_name --ip 172.20.0.11 -p ${PORT}:80 $client_name:latest
+docker run -d --name $redis_name --network $network_name --ip 172.20.0.12 -p 6379:6379 redis || true
