@@ -5,6 +5,7 @@ set -e
 app_name='gptalk'
 client_name=$app_name-client
 server_name=$app_name-server
+redis_name=$app_name-redis
 network_name=$app_name-network
 user_config_dir='user_config'
 server_config_filename='config.yml'

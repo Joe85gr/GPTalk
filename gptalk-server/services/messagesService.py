@@ -5,6 +5,7 @@ from infrastructure.cache import Cache
 from infrastructure.chatgpt import OpenaiClient
 from config.configuration import OpenaiConfig
 from infrastructure.db import IDatabase
+from infrastructure.caching import Cache
 
 
 class MessageService:
