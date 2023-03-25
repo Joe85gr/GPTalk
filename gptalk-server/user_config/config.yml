@@ -1,6 +1,7 @@
 gptalk:
-    logging_level: DEBUG
+    logging_level: INFO
     max_log_size: 10 # max log size in MB
+    client_address: http://localhost:6222
 
 openai:
     behaviour: "talk like a bro, use markdown code highlighting"

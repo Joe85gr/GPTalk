@@ -1,6 +1,6 @@
-FROM python:3.10-slim
+FROM python:3.10-slim-bullseye
 
-EXPOSE 8000
+EXPOSE 8222
 
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -16,4 +16,4 @@ COPY ./gptalk-server/ /app
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8222", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
