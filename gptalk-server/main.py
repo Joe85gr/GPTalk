@@ -3,6 +3,8 @@ import sqlite3
 
 from fastapi import FastAPI, Request, HTTPException
 from starlette.middleware.cors import CORSMiddleware
+
+from infrastructure.cache import Cache
 from infrastructure.chatgpt import OpenaiClient
 from config.configuration_loader import ConfigLoader
 from logger import GPTalkLog
@@ -15,17 +17,10 @@ _config = ConfigLoader.get_config()
 _logger = GPTalkLog(_config.gptalk).get_logger('__main__')
 _client = OpenaiClient(_logger)
 _db = Sqlite(_logger, sqlite3)
-_messageService = MessageService(_client, _db, _config.openai)
+_cache = Cache(_logger)
+_messageService = MessageService(_client, _db, _config.openai, _logger, _cache)
 
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:3000/*",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3000/*",
-    "http://172.20.0.11",
-    "http://172.20.0.11/*",
-]
+origins = [_config.gptalk.client_address, "http://localhost:6222"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -76,9 +71,9 @@ async def create_new_chat():
 @app.get("/api/models")
 async def get_models():
     _logger.info("Processing request 'models'..")
-    models = _client.get_all_models()
+    models = _messageService.get_models()
     return {"models": models}
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="localhost", port=8222)

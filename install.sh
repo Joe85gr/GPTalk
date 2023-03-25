@@ -2,19 +2,6 @@
 
 set -e
 
-# Reset
-Color_Off='\033[0m'       # Text Reset
-
-# Regular Colors
-Black='\033[0;30m'        # Black
-Red='\033[0;31m'          # Red
-Green='\033[0;32m'        # Green
-Yellow='\033[0;33m'       # Yellow
-Blue='\033[0;34m'         # Blue
-Purple='\033[0;35m'       # Purple
-Cyan='\033[0;36m'         # Cyan
-White='\033[0;37m'        # White
-
 app_name='gptalk'
 client_name=$app_name-client
 server_name=$app_name-server
@@ -22,13 +9,15 @@ network_name=$app_name-network
 user_config_dir='user_config'
 server_config_filename='config.yml'
 
-PORT=80
+CLIENT_PORT=6222
+SERVER_PORT=8222
+REDIS_PORT=6379
 
 while getopts k: flag
 do
   # echo ${OPTARG}
     case "${flag}" in
-        # p) PORT=${OPTARG};;
+        # p) CLIENT_PORT=${OPTARG};;
         k) API_KEY=${OPTARG};;
     esac
 done
@@ -36,27 +25,27 @@ done
 # Check if any parameters were provided
 if [ $# -eq 0 ]; then
 
-  echo "${Yellow}Warning: No OpenAI API key provided. Attempting to retrieve OpenAI API key from environmental variables..${Color_Off}"
+  echo "Warning: No OpenAI API key provided. Attempting to retrieve OpenAI API key from environmental variables.."
   API_KEY=${OPENAI_API_KEY}
 
   if [ -z "${OPENAI_API_KEY}" ]; then
-    echo "${Red}Error: Unable to retrieve OpenAI API key from environmental variables. Please provide an OpenAI API key with the -key parameter.${Color_Off}"
+    echo "Error: Unable to retrieve OpenAI API key from environmental variables. Please provide an OpenAI API key with the -key parameter."
     exit 1
   else
-    echo "${Green}OpenAI API key loaded successfully.{Color_Off}"
+    echo "OpenAI API key loaded successfully."
   fi
 
 fi
 
 # Check if OPENAI_API_KEY is set
 if [ -z "${API_KEY}" ]; then
-  echo "${Red}Error: -key parameter is required. Please provide an OpenAI API key with the -key parameter.${Color_Off}"
+  echo "Error: -key parameter is required. Please provide an OpenAI API key with the -key parameter."
   exit 1
 fi
 
 if [[ ! -e ./$server_name/$user_config_dir ]]; then
     mkdir ./$server_name/$user_config_dir
-    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
+    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n    client_address: http://localhost:'${CLIENT_PORT}$'\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
 fi
 
 # Removes existing containers if exists
@@ -69,8 +58,9 @@ docker build -t $client_name:latest -f ./$client_name.Dockerfile .
 
 # Create docker networks so that the containers can communicate with each other
 docker network rm $network_name || true
-docker network create --subnet=172.20.0.0/16 --driver bridge $network_name
+docker network create --subnet=172.25.0.0/16 --driver bridge $network_name || true
 
 # Run Docker containers
-docker run -d --name $server_name --network $network_name --ip 172.20.0.10 -p 8000:8000 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${API_KEY} $server_name:latest
-docker run -d --name $client_name --network $network_name --ip 172.20.0.11 -p ${PORT}:80 $client_name:latest
+docker run -d --name redis --network $network_name --ip 172.25.0.12 -p 6379:6379 redis || true
+docker run -d --name $server_name --network $network_name --ip 172.25.0.10 -p ${SERVER_PORT}:8222 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${API_KEY} $server_name:latest
+docker run -d --name $client_name --network $network_name --ip 172.25.0.11 -p ${CLIENT_PORT}:80 $client_name:latest
