@@ -209,14 +209,14 @@ function App() {
                         </li>
                     </ul>
 
-                    <select value={model} onChange={(e) => onSelect(e.target.value)} id="models" className="block py-2.5 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
+                    <select value={model} onChange={(e) => onSelect(e.target.value)} id="models" className="block py-2.5 w-full text-base text-gray-500 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
                       { models.map((model, i) => ( 
                           <option key={i} value={model.value}>{model.label}</option>
                       )) 
                       }
                     </select>
                     <div className='my-2 h-96 overflow-y-auto'>
-                      <ul className="block w-full text-sm text-gray-500 bg-transparent border-0 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
+                      <ul className="block w-full text-base text-gray-500 bg-transparent border-0 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
                         {
                         storedConversations
                             .map((modelReply, i) => (
@@ -230,7 +230,7 @@ function App() {
                                     
                                         </button>
                                         { 
-                                            <button onClick={() => DeleteChat(modelReply.chat_id)} className={`transition flex-none items-center justify-center px-1 text-sm font-medium rounded-r ${ modelReply.chat_id == chatId && "bg-gray-700"} hover:bg-red-800 text-gray-300 border-r border-b border-t border-gray-700`}>
+                                            <button onClick={() => DeleteChat(modelReply.chat_id)} className={`transition flex-none items-center justify-center px-1 text-base font-medium rounded-r ${ modelReply.chat_id == chatId && "bg-gray-700"} hover:bg-red-800 text-gray-300 border-r border-b border-t border-gray-700`}>
                                             <svg className="text-gray-400"  width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="18" y1="6" x2="6" y2="18" />  <line x1="6" y1="6" x2="18" y2="18" /></svg>
                                             </button>
                                         }
@@ -279,7 +279,7 @@ function App() {
               <form id="chat-form" onSubmit={handleSubmit}>
                   <textarea 
                   rows={1}
-                  className='bg-gray-500 text-white placeholder-gray-700 text-sm rounded-lg ring-gray-500 focus:ring-gray-500 border-0 block w-full p-2.5' 
+                  className='bg-gray-500 text-white placeholder-gray-700 text-base rounded-lg ring-gray-500 focus:ring-gray-500 border-0 block w-full p-2.5' 
                   onKeyDown={onEnterPress}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}>
