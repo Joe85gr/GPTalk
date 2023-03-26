@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client'
 import { ScrollDivToRef as scrollDivToRef, FilterMessages } from './Utilities'
 import { ChatMessage } from './components/Messages';
 import { LoadingAnimation } from './components/LoadingAnimation';
@@ -7,6 +7,7 @@ import { Message, ModelReply } from './infrastructure/client'
 import { PlusSvg } from './components/Svg';
 import { SidebarButton } from './components/SidebarButton';
 import { ChatHadler, ChatHadlerParams, DefaultModeLReply } from './ChatHadler'
+import img from './react.svg'
 
 import './App.css';
 
@@ -24,8 +25,9 @@ function App() {
     }
     const [model, setModel] = useState(defaultModel);
     const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingReply, setIsLoadingReply] = useState<boolean>(false);
     const conversations: ModelReply[] = []
     const [storedConversations, setStoredConversations] = useState(conversations);
   
@@ -46,7 +48,7 @@ function App() {
     const chatRefs = useRef<HTMLDivElement>(null); 
   
     const onEnterPress = (e: React.KeyboardEvent) => {
-      if(e.code == "Enter" && e.shiftKey == false && isLoading == false ) {
+      if(e.code == "Enter" && e.shiftKey == false && isLoadingReply == false ) {
         e.preventDefault();
         let form = document.getElementById('chat-button');
         if(form) { 
@@ -57,11 +59,15 @@ function App() {
 
     async function LoadChats() { 
       const chats = await chatHandler.LoadChats();
+      console.log("chats: ", chats);
       if(chats) {
           setStoredConversations(chats)
       } else { 
         console.log("No storedConversations.");
        }
+
+       setIsLoading(false);
+       console.log("isLoading: ", isLoading);
     }  
 
     async function NewChat(){
@@ -92,6 +98,34 @@ function App() {
     }
   }
 
+  async function ShowSidebar() {
+    console.log("ShowHideSidebar");
+    let sidebar = document.getElementById('default-sidebar');
+    let overlay = document.getElementById('overlay');
+
+    if(sidebar) {
+      sidebar.classList.remove('-translate-x-full');
+    }
+
+    if(overlay) {
+      overlay.classList.remove('hidden');
+    }
+  }
+
+  async function HideSidebar() {
+    console.log("ShowHideSidebar");
+    let sidebar = document.getElementById('default-sidebar');
+    let overlay = document.getElementById('overlay');
+
+    if(sidebar) {
+      sidebar.classList.add('-translate-x-full');
+    }
+
+    if(overlay) {
+      overlay.classList.add('hidden');
+    }
+  }
+
     useEffect(() => {
       scrollDivToRef(messagesEndRef)
     }, [chatLog]);
@@ -106,12 +140,12 @@ function App() {
 
     async function OnClickLoadChat(chatId: string | undefined) { 
       if(chatId) {
-        const response = await chatHandler.LoadChat(chatId)
+        const conversation = storedConversations.find(chat => chat.chat_id == chatId);
 
-        if(response && response.chat_id){
-          window.localStorage.setItem('chat_id', String(response.chat_id));
-          setChatId(response.chat_id);
-          setChatLog(response);
+        if (conversation &&  conversation.chat_id) {
+          window.localStorage.setItem('chat_id', String(conversation.chat_id));
+          setChatId(conversation.chat_id);
+          setChatLog(conversation);
         }
        }
     }
@@ -132,13 +166,17 @@ function App() {
         setModels(models)
       }
       
-      SetModels();
-      LoadChats();
+      setIsLoading(true);
+      console.log("loading:", isLoading)
+
+      SetModels().then(() => { LoadChats()} );     
   
       if(currentChatId) {
         console.log("App currentChatId:", currentChatId);
         LoadChatLog(currentChatId);
       }
+
+      
     }, [])
   
     async function onSelect(value: string) {
@@ -153,7 +191,7 @@ function App() {
         return;
       }
   
-      setIsLoading(true);
+      setIsLoadingReply(true);
   
       if(chatId === null || chatId === undefined){
         await NewChat()
@@ -185,21 +223,36 @@ function App() {
           await LoadChats()
       }
   
-      setIsLoading(false);
+      setIsLoadingReply(false);
     }
   
     return (
+      
     <div className='h-full'>
 
-        <SidebarButton />
+      <div id="overlay" style={ { backgroundColor: "#343541", opacity: "0.8" }} onClick={HideSidebar} className='hidden fixed top-0 left-0 text-black h-full w-full z-40' />
 
+      <button onClick={ShowSidebar} data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" className="display-none top-0 transition inline-flex items-center p-2 mt-2 ml-3 text-base text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+        <span className="sr-only">Open sidebar</span>
+        <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clipRule="evenodd" fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+        </svg>
+      </button>
+       
         <aside id="default-sidebar" className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
             <div className="h-full px-3 py-4 overflow-y-auto bg-gray-800">
                 <div className="flex items-center pl-2.5 mb-5">
-                    <img src={process.env.PUBLIC_URL + '/gptalk_logo.png'} className="h-6 mr-3 sm:h-7" alt="GPTalk Logo" />
+                    <img src={'gptalk_logo.png'} className="h-6 mr-3 sm:h-7" alt="GPTalk Logo" />
                     <span className="self-center text-xl font-semibold whitespace-nowrap text-white">GPTalk</span>
                 </div>
-                <div>
+              
+
+                    { isLoading && <LoadingAnimation></LoadingAnimation> }
+
+                    { !isLoading && 
+                    
+                    <div>
+
                     <ul className="space-y-2 mb-2">
                         <li>
                             <a href="#" onClick={NewChat} className="transition flex items-center p-2 text-base font-normal rounded-lg text-white hover:bg-gray-700">
@@ -215,7 +268,10 @@ function App() {
                       )) 
                       }
                     </select>
-                    <div className='my-2 h-96 overflow-y-auto'>
+
+
+                    <div className='my-2 h-96 overflow-y-auto'>                      
+
                       <ul className="block w-full text-base text-gray-500 bg-transparent border-0 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
                         {
                         storedConversations
@@ -241,40 +297,58 @@ function App() {
                             ))
                         }
                       </ul>
-                  </div>
-                </div>
+                    </div>
+
+                    </div>
+                    
+                    }
             </div>
         </aside>
 
-        <div className="sm:ml-64 calc-height mb-64 overflow-auto">
-            {
+        <div id="messages-container" className="sm:ml-64 calc-height mb-64 overflow-auto">
+            { !isLoading &&
           chatLog
             .messages
             .filter((message: Message) => FilterMessages(message, "system"))
             .map((message, i) => (
               <ChatMessage key={`chat-message-${i}`} {...message}/> 
-          ))
-        }
+            ))
+          }
 
-    { 
-    !chatId && 
-    
-    <div className="flex items-center justify-center h-full">
-      <div className="flex items-center pl-2.5 mb-5">
-          <img src={process.env.PUBLIC_URL + '/gptalk_logo.png'} className="h-16 mr-3 sm:h-12" alt="GPTalk Logo" />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">GPTalk</span>
-      </div>
-    </div>
-    }
-    <div ref={messagesEndRef} />
-        {isLoading && <LoadingAnimation />}
+
+          {isLoading && 
+            <div className='flex justify-center items-center h-full'>
+
+              <div role="status">
+                  <svg aria-hidden="true" className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                      <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                  </svg>
+                  <span className="sr-only">Loading...</span>
+              </div>
+
+            </div>
+          }
+
+          { 
+          (!chatId) && 
+          
+          <div className="flex items-center justify-center h-full">
+            <div className="flex items-center pl-2.5 mb-5">
+                <img src='gptalk_logo.png' className="h-16 mr-3 sm:h-12" alt="GPTalk Logo" />
+                <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">GPTalk</span>
+            </div>
+          </div>
+          }
+          <div ref={messagesEndRef} />
+              {isLoadingReply && <LoadingAnimation />}
 
         </div>
 
-        { chatId && 
+        { (chatId && !isLoading) &&
         
         <div className='fixed sm:ml-64 justify-center p-4 footer-input inset-x-0 bottom-0'>
-          <div className='w-screen'>
+          <div id='footer' className=''>
 
               <form id="chat-form" onSubmit={handleSubmit}>
                   <textarea 
