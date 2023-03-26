@@ -5,9 +5,7 @@ import { ChatMessage } from './components/Messages';
 import { LoadingAnimation } from './components/LoadingAnimation';
 import { Message, ModelReply } from './infrastructure/client'
 import { PlusSvg } from './components/Svg';
-import { SidebarButton } from './components/SidebarButton';
 import { ChatHadler, ChatHadlerParams, DefaultModeLReply } from './ChatHadler'
-import img from './react.svg'
 
 import './App.css';
 
