@@ -13,23 +13,40 @@ server_config_filename='config.yml'
 CLIENT_PORT=6222
 SERVER_PORT=8222
 REDIS_PORT=6379
+SERVER_HOST="localhost"
 
-while getopts k: flag
+Help()
+{
+   # Display Help
+   echo
+  #  echo "Add description of the script functions here."
+  #  echo
+   echo "Syntax: ./install -k 'YOUR_OPENAI_API_KEY' "
+   echo "options:"
+   echo "k     Mandatory - Openai Api Key. If not provided, the script will attempt to retrieve it from "
+   echo "h     Optional  - Print this Help."
+   echo "s     Optional  - Hostname (e.g. 'localhost' or 'yourdomain.com'). This is used for setting CORS."
+   echo
+   exit 0;
+}
+
+while getopts k:s:h flag
 do
-  # echo ${OPTARG}
     case "${flag}" in
         # p) CLIENT_PORT=${OPTARG};;
+        s) SERVER_HOST=${OPTARG};;
         k) API_KEY=${OPTARG};;
+        h) Help;;
     esac
 done
 
 # Check if any parameters were provided
 if [ $# -eq 0 ]; then
 
-  echo "Warning: No OpenAI API key provided. Attempting to retrieve OpenAI API key from environmental variables.."
+  echo "Warning: No OpenAI API key provided. Attempting to retrieve OpenAI API key from the OPENAI_API_KEY environmental variables."
   API_KEY=${OPENAI_API_KEY}
 
-  if [ -z "${OPENAI_API_KEY}" ]; then
+  if [ -z ${API_KEY} ]; then
     echo "Error: Unable to retrieve OpenAI API key from environmental variables. Please provide an OpenAI API key with the -key parameter."
     exit 1
   else
@@ -48,6 +65,12 @@ if [[ ! -e ./$server_name/$user_config_dir ]]; then
     mkdir ./$server_name/$user_config_dir
     echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n    client_address: http://localhost:'${CLIENT_PORT}$'\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
 fi
+
+if [[ ! -e ./$client_name/.env ]]; then
+    echo $'VITE_SERVER_HOST = "http://'${SERVER_HOST}':'${SERVER_PORT}'"' >> ./$client_name/.env
+fi
+
+
 
 # Removes existing containers if exists
 docker rm --force $server_name || true

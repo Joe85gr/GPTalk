@@ -57,7 +57,6 @@ function App() {
 
     async function LoadChats() { 
       const chats = await chatHandler.LoadChats();
-      console.log("chats: ", chats);
       if(chats) {
           setStoredConversations(chats)
       } else { 
@@ -97,7 +96,6 @@ function App() {
   }
 
   async function ShowSidebar() {
-    console.log("ShowHideSidebar");
     let sidebar = document.getElementById('default-sidebar');
     let overlay = document.getElementById('overlay');
 
@@ -111,7 +109,6 @@ function App() {
   }
 
   async function HideSidebar() {
-    console.log("ShowHideSidebar");
     let sidebar = document.getElementById('default-sidebar');
     let overlay = document.getElementById('overlay');
 
@@ -166,7 +163,6 @@ function App() {
       }
       
       setIsLoading(true);
-      console.log("loading:", isLoading)
 
       SetModels().then(() => { LoadChats()} );     
   

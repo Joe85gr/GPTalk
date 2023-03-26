@@ -50,3 +50,4 @@ gptalk-client/package-lock.json
 *.db
 package-lock.json
 gptalk-server/user_config
+**/.env

@@ -23,7 +23,7 @@ export async function GetModels() {
       return m;
     } 
     catch (error) {
-      console.log(error);
+      console.error(error);
       return [];
     }
   }
@@ -126,7 +126,7 @@ export async function GetConversations() {
       
   }
   catch (error) {
-      console.log(error);
+      console.error(error);
       return [];
     }
 }
