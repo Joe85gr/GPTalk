@@ -18,12 +18,13 @@ Requires [Docker](https://www.docker.com/products/docker-desktop/).
 ```bash
 ./install.sh -key {YOUR OPENAI API KEY}
 ```
-* Navigate to http://localhost and start using the GPT models 😄
+* Navigate to http://localhost:6222 and start using the GPT models 😄
 
 The install script will: 
 1. build, start and setup two docker containers:
    - gptalk-client
    - gptalk-server
+   - redis
 2. create a docker network for the containers to communicate between each other
 3. create a default user configuration file within {your-install-folder}/gptalk-server/user_config/config.yml
 ________________________________________________________________
