@@ -41,7 +41,7 @@ interface Props {
     return (
       <div className={`${bg} mr-2`}> 
         <div className="sm:p-8 p-4 text-left sm:mr-5 flex">
-          <div className="self-center rounded-full w-6 h-6 text-white bg-black">
+          <div className="self-center rounded-full w-6 h-6 text-white bg-gray-700">
               {
                 (message.role === "assistant" && <SvgGptLogo />) ||
                 (message.role === "error" && <SvgError />)
