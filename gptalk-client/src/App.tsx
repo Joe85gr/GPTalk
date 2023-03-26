@@ -144,6 +144,7 @@ function App() {
           window.localStorage.setItem('chat_id', String(conversation.chat_id));
           setChatId(conversation.chat_id);
           setChatLog(conversation);
+          await HideSidebar();
         }
        }
     }
@@ -244,7 +245,6 @@ function App() {
                     <span className="self-center text-xl font-semibold whitespace-nowrap text-white">GPTalk</span>
                 </div>
               
-
                     { isLoading && <LoadingAnimation></LoadingAnimation> }
 
                     { !isLoading && 
@@ -355,7 +355,7 @@ function App() {
                   onKeyDown={onEnterPress}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}>
-                  </textarea >
+                  </textarea>
                   <button id="chat-button" type="submit" style={{display: "none"}}>
                   </button>
               </form>
