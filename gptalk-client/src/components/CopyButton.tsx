@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { SvgCopy, Ok } from "./Svg"
 
-export function CodeCopyBtn(children) {
+export function CodeCopyBtn(children: any) {
 
     const [clicked, setClicked] = useState(false);
 
-    const handleClick = (e) => {
+    const handleClick = (e: any) => {
         if(children) {
-            navigator.clipboard.writeText(children[0].props.children[0]);
-
+            navigator.clipboard.writeText(children.children[0].props.children[0]);
         }
         setClicked(true)
         

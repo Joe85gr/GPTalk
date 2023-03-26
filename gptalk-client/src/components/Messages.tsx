@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { CodeProps } from "react-markdown/lib/ast-to-react";
 import { Message } from '../infrastructure/client'
-// import { CodeCopyBtn } from './CopyButton'
+import { CodeCopyBtn } from './CopyButton'
 
 export interface IConversation {
   chat_id: number;
@@ -29,10 +29,10 @@ interface Props {
       bg = 'bg-red-200 bg-opacity-50';
     }
 
-    // const Pre = ({children}: Props) => <pre className="relative mb-4 mt-4 overflow-x-auto">
-    //     <CodeCopyBtn>{children}</CodeCopyBtn>
-    //     {children}
-    // </pre>
+    const Pre = ({children}: Props) => <pre className="relative mb-4 mt-4 overflow-x-auto">
+        <CodeCopyBtn>{children}</CodeCopyBtn>
+        {children}
+    </pre>
 
     const customStyle = {
       padding: "20px",
@@ -51,7 +51,7 @@ interface Props {
             <ReactMarkdown 
               children={message.content}
               components={{
-                // pre: Pre,
+                pre: Pre,
                 code({node, inline, className, children, style, ...props} : CodeProps) {
                   const match = /language-(\w+)/.exec(className || '');
                   if (match) { 
