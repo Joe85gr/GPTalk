@@ -20,7 +20,7 @@ _db = Sqlite(_logger, sqlite3)
 _cache = Cache(_logger)
 _messageService = MessageService(_client, _db, _config.openai, _logger, _cache)
 
-origins = [_config.gptalk.client_address, "http://localhost:6222"]
+origins = [_config.gptalk.origins]
 
 app.add_middleware(
     CORSMiddleware,

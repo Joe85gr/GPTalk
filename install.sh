@@ -46,7 +46,7 @@ fi
 
 if [[ ! -e ./$server_name/$user_config_dir ]]; then
     mkdir ./$server_name/$user_config_dir
-    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n    client_address: http://localhost:'${CLIENT_PORT}$'\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
+    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n    origins:\n    - http://localhost:'${CLIENT_PORT}$'\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
 fi
 
 # Removes existing containers if exists
