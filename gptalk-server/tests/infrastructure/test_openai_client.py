@@ -1,5 +1,4 @@
 import pytest
-from logging import Logger
 from openai.error import AuthenticationError, RateLimitError
 from src.infrastructure.openai_client import OpenaiClient
 from tests.data import VALID_MODELS, REQUEST, get_valid_completion
@@ -26,8 +25,8 @@ class Test_OpenaiClient:
         # Arrange
         expectedResult = {'models': ['babbage', 'davinci'], 'reply': 'success'}
         models = VALID_MODELS
-        mocker.patch("openai_client.api_key")
-        mocker.patch("openai_client.Model.list", return_value=models)
+        mocker.patch("openai.api_key")
+        mocker.patch("openai.Model.list", return_value=models)
 
         # Act
         result = sut.get_all_models()
@@ -38,8 +37,8 @@ class Test_OpenaiClient:
     @pytest.mark.parametrize("exception, expected_result", modelsExceptionsTestData)
     def test_when_exception_is_thrown_get_all_models_returns_reply_exception(self, exception, expected_result, mocker):
         # Arrange
-        mocker.patch("openai_client.api_key")
-        mocker.patch("openai_client.Model.list", side_effect=exception)
+        mocker.patch("openai.api_key")
+        mocker.patch("openai.Model.list", side_effect=exception)
 
         # Act
         result = sut.get_all_models()
@@ -62,7 +61,7 @@ class Test_OpenaiClient:
 
         completion = get_valid_completion(newContent)
 
-        mocker.patch("openai_client.ChatCompletion.create", return_value=completion)
+        mocker.patch("openai.ChatCompletion.create", return_value=completion)
 
         # Act
         result = sut.get_model_response(REQUEST)
@@ -76,7 +75,7 @@ class Test_OpenaiClient:
                                                                                          expected_result: dict,
                                                                                          mocker):
         # Arrange
-        mocker.patch("openai_client.ChatCompletion.create", side_effect=exception)
+        mocker.patch("openai.ChatCompletion.create", side_effect=exception)
 
         # Act
         result = sut.get_model_response(REQUEST)
@@ -91,7 +90,7 @@ class Test_OpenaiClient:
 
         completion = get_valid_completion(expectedResult)
 
-        mocker.patch("openai_client.ChatCompletion.create", return_value=completion)
+        mocker.patch("openai.ChatCompletion.create", return_value=completion)
 
         # Act
         result = sut.get_chat_description(request, "some-model")
@@ -104,7 +103,7 @@ class Test_OpenaiClient:
         expectedResult = None
         request = [{"role": "user", "content": f"tl;dr of the following text, max 3 words: \nsome-conversation"}]
 
-        mocker.patch("openai_client.ChatCompletion.create", side_effect=Exception())
+        mocker.patch("openai.ChatCompletion.create", side_effect=Exception())
 
         # Act
         result = sut.get_chat_description(request, "some-model")
