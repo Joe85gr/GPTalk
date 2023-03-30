@@ -11,7 +11,7 @@ RUN pip install --upgrade pip
 RUN python -m pip install -r requirements.txt
 
 WORKDIR /app
-COPY ./server/ /app
+COPY ./server/src/ /app/src
 
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
