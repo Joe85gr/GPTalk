@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from logging import Logger
 
 import redis
@@ -7,7 +8,17 @@ REDIS_PORT = 6379
 DEFAULT_TIMEOUT = 60 * 60 * 2
 
 
-class Cache:
+class ICache(ABC):
+    @abstractmethod
+    def GetFromCache(self, key: str):
+        pass
+
+    @abstractmethod
+    def SetCache(self, key: str, value: str, timeout: int = DEFAULT_TIMEOUT):
+        pass
+
+
+class Cache(ICache):
     def __init__(self, logger: Logger):
         self.logger = logger
 

@@ -15,6 +15,10 @@ class IOpenaiClient(ABC):
     def get_model_response(self, request):
         pass
 
+    @abstractmethod
+    def get_chat_description(self, messages: [dict], model: str):
+        pass
+
 
 class OpenaiClient(IOpenaiClient):
     def __init__(self, logger: Logger):
@@ -55,7 +59,7 @@ class OpenaiClient(IOpenaiClient):
             role = "assistant"
             self.logger.debug("Chat completition retrieved successfully!")
         except AuthenticationError as e:
-            content = 'Error: Unable to authenticate with openai.'
+            content = 'Error: Unable to authenticate with openai_client.'
             self.logger.error(f"OpenaiClient {content}", e)
         except RateLimitError as e:
             content = f'Error: Model {request["model"]} is currently overloaded with other ' \
@@ -80,14 +84,11 @@ class OpenaiClient(IOpenaiClient):
 
         content = None
 
-        u = messages[1]['content']
-        m = [{"role": "user", "content": f"tl;dr of the following text, max 3 words: {u}"}]
-
         try:
             self.logger.debug("Getting chat completion..")
             completion = openai.ChatCompletion.create(
                 model=model,
-                messages=m)
+                messages=messages)
 
             content = completion.choices[0].message.content
         except Exception as e:

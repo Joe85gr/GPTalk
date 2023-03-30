@@ -14,7 +14,7 @@ class Chat(BaseModel):
 
 class IDatabase(ABC):
     @abstractmethod
-    def add_new_chat(self) -> bool:
+    def add_new_chat(self) -> str:
         pass
 
     @abstractmethod

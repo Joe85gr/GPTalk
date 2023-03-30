@@ -8,7 +8,7 @@ from infrastructure.openai_client import OpenaiClient
 from config.configuration_loader import ConfigLoader
 from logger import GPTalkLog
 from infrastructure.db import Sqlite
-from services.messagesService import MessageService
+from services.messages_service import MessageService
 from infrastructure.cache import Cache
 
 app = FastAPI()

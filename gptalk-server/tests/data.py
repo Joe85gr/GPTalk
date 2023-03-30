@@ -1,13 +1,11 @@
-from collections import namedtuple
-
-from pydantic import BaseModel
+from tests.helpers import Completion
 
 VALID_MODELS = {"data": [
     {
         "created": 1649358449,
         "id": "babbage",
         "object": "model",
-        "owned_by": "openai",
+        "owned_by": "openai_client",
         "parent": None,
         "permission": [
             {
@@ -31,7 +29,7 @@ VALID_MODELS = {"data": [
         "created": 1649359874,
         "id": "davinci",
         "object": "model",
-        "owned_by": "openai",
+        "owned_by": "openai_client",
         "parent": None,
         "permission": [
             {
@@ -53,56 +51,32 @@ VALID_MODELS = {"data": [
     }],
     "object": "list"}
 
-completion = {
-  "choices": [
-    {
-      "finish_reason": "stop",
-      "index": 0,
-      "message": {
-        "content": "some response.",
-        "role": "assistant"
-      }
+
+def get_valid_completion(content):
+    rawCompletion = {
+        "choices": [
+            {
+                "finish_reason": "stop",
+                "index": 0,
+                "message": {
+                    "content": f"{content}",
+                    "role": "assistant"
+                }
+            }
+        ],
+        "created": 1680081760,
+        "id": "some-id",
+        "model": "gpt-3.5-turbo-0301",
+        "object": "chat.completion",
+        "usage": {
+            "completion_tokens": 331,
+            "prompt_tokens": 17,
+            "total_tokens": 348
+        }
     }
-  ],
-  "created": 1680081760,
-  "id": "some-id",
-  "model": "gpt-3.5-turbo-0301",
-  "object": "chat.completion",
-  "usage": {
-    "completion_tokens": 331,
-    "prompt_tokens": 17,
-    "total_tokens": 348
-  }
-}
 
+    return Completion(**rawCompletion)
 
-class Message(BaseModel):
-    content: str
-    role: str
-
-
-class Choice(BaseModel):
-    finish_reason: str
-    index: int
-    message: Message
-
-
-class Usage(BaseModel):
-    completion_tokens: int
-    prompt_tokens: int
-    total_tokens: int
-
-
-class Completion(BaseModel):
-    created: int
-    id: str
-    model: str
-    object: str
-    usage: Usage
-    choices: list[Choice]
-
-
-VALID_COMPLETION = Completion(**completion)
 
 REQUEST = {
     'messages':
