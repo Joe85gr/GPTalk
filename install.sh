@@ -56,8 +56,8 @@ docker rm --force $server_name || true
 docker rm --force $client_name || true
 
 # Build Docker images
-docker build -t $server_name:latest -f ./$server_name.Dockerfile .
-docker build -t $client_name:latest -f ./$client_name.Dockerfile .
+docker build -t $server_name:latest -f ./$server.Dockerfile .
+docker build -t $client_name:latest -f ./$client.Dockerfile .
 
 # Create docker networks so that the containers can communicate with each other
 docker network rm $network_name || true
