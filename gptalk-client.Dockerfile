@@ -2,11 +2,11 @@ FROM node:19-alpine AS builder
 
 WORKDIR /app
 
-COPY ./gptalk-client/package.json package.json
+COPY ./client/package.json package.json
 
 RUN npm install
 
-COPY ./gptalk-client/ .
+COPY ./client/ .
 
 RUN npm run build
 

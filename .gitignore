@@ -45,11 +45,11 @@ test/*.js
 */__pycache__
 .vscode
 venv
-gptalk-client/package-lock.json
+client/package-lock.json
 **/__pycache__
 *.db
 package-lock.json
-gptalk-server/user_config
+server/user_config
 **/.env
 **/.pytest_cache
 **/.coverage
