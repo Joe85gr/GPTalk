@@ -1,10 +1,9 @@
-import json
 from abc import ABC, abstractmethod
 from logging import Logger
 import sqlite3
 from sqlite3 import Error as SqliteError
 from pydantic import BaseModel
-from constants import APP_NAME, CONFIG_PATH
+from src.constants import APP_NAME, CONFIG_PATH
 
 
 class Chat(BaseModel):
@@ -15,7 +14,7 @@ class Chat(BaseModel):
 
 class IDatabase(ABC):
     @abstractmethod
-    def add_new_chat(self) -> bool:
+    def add_new_chat(self) -> str:
         pass
 
     @abstractmethod

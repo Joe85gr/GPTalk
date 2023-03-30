@@ -4,11 +4,11 @@ import sqlite3
 from fastapi import FastAPI, Request, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
-from infrastructure.chatgpt import OpenaiClient
+from infrastructure.openai_client import OpenaiClient
 from config.configuration_loader import ConfigLoader
 from logger import GPTalkLog
 from infrastructure.db import Sqlite
-from services.messagesService import MessageService
+from services.messages_service import MessageService
 from infrastructure.cache import Cache
 
 app = FastAPI()
@@ -24,7 +24,7 @@ origins = [_config.gptalk.origins]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,8 +39,8 @@ async def handle_conversation(request: Request):
 
 
 @app.get("/api/conversations/")
-async def get_conversation(chat_id: int | None = None):
-    _logger.info(f"Getting conversation with chat id:{chat_id}..")
+async def get_conversation():
+    _logger.info(f"Getting conversations..")
     data = _messageService.get_conversations()
     return data
 
@@ -71,8 +71,8 @@ async def create_new_chat():
 @app.get("/api/models")
 async def get_models():
     _logger.info("Processing request 'models'..")
-    models = _messageService.get_models()
-    return {"models": models}
+    modelsReply = _messageService.get_models()
+    return {"data": modelsReply}
 
 
 if __name__ == "__main__":

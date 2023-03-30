@@ -1,6 +1,6 @@
-from config.configuration import Configuration
+from src.config.configuration import Configuration
 from yaml import safe_load
-from constants import CONFIG_FULL_PATH
+from src.constants import CONFIG_FULL_PATH
 
 
 class ConfigLoader:

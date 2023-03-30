@@ -246,8 +246,9 @@ function App() {
                 </div>
               
                     { isLoading && <LoadingAnimation></LoadingAnimation> }
+                    { (models && models[0].label === "error") && <div className='text-red-600 text-base italic'>Unable to load models..</div> }
 
-                    { !isLoading && 
+                    { (!isLoading && (models && models[0].label !== "error")) &&
                     
                     <div>
 
@@ -259,13 +260,13 @@ function App() {
                             </a>
                         </li>
                     </ul>
-
-                    <select value={model} onChange={(e) => onSelect(e.target.value)} id="models" className="block py-2.5 w-full text-base text-gray-500 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
+                      <select value={model} onChange={(e) => onSelect(e.target.value)} id="models" className="block py-2.5 w-full text-base text-gray-500 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer rounded-l rounded-r">
                       { models.map((model, i) => ( 
                           <option key={i} value={model.value}>{model.label}</option>
                       )) 
                       }
-                    </select>
+                      </select>
+
 
 
                     <div className='my-2 h-96 overflow-y-auto'>                      

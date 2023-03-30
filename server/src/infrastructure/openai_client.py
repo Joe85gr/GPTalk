@@ -3,16 +3,20 @@ from abc import ABC, abstractmethod
 from logging import Logger
 
 import openai
-from openai.error import APIConnectionError, RateLimitError, AuthenticationError
+from openai.error import RateLimitError, AuthenticationError
 
 
 class IOpenaiClient(ABC):
     @abstractmethod
-    def get_all_models(self) -> list:
+    def get_all_models(self) -> dict:
         pass
 
     @abstractmethod
     def get_model_response(self, request):
+        pass
+
+    @abstractmethod
+    def get_chat_description(self, messages: [dict], model: str):
         pass
 
 
@@ -20,31 +24,25 @@ class OpenaiClient(IOpenaiClient):
     def __init__(self, logger: Logger):
         self.logger = logger
 
-    def get_all_models(self) -> list:
+    def get_all_models(self) -> dict:
         openai.api_key = os.getenv("OPENAI_API_KEY")
+        models = []
+        reply = "success"
 
         try:
             self.logger.debug("Loading models..")
             model_lst = openai.Model.list()
             self.logger.debug("ModelService loaded!")
             models = [row['id'] for row in model_lst['data']]
-            return models
 
-        except (APIConnectionError, TimeoutError) as e:
-            ex = e
-            error_message = 'Unable to connect to the server.'
         except AuthenticationError as e:
-            ex = e
-            error_message = 'Unable to authenticate with openai.'
-        except RateLimitError as e:
-            ex = e
-            error_message = 'Openai api is currently overloaded with other requests.'
+            self.logger.error(f"OpenaiClient authentication error: ", e)
+            reply = f"AuthenticationError"
         except Exception as e:
-            ex = e
-            error_message = 'Unknown Error.'
+            self.logger.error(f"OpenaiClient error: ", e)
+            reply = "Exception"
 
-        self.logger.debug(f"OpenaiClient error: {error_message}", ex)
-        return []
+        return {"models": models, "reply": reply}
 
     def get_model_response(self, request: dict):
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -60,15 +58,12 @@ class OpenaiClient(IOpenaiClient):
             total_tokens = completion.usage.total_tokens
             role = "assistant"
             self.logger.debug("Chat completition retrieved successfully!")
-        except (APIConnectionError, TimeoutError) as e:
-            content = 'Error: Unable to connect to the server.'
-            self.logger.error(f"OpenaiClient {content}", e)
         except AuthenticationError as e:
-            content = 'Error: Unable to authenticate with openai.'
+            content = 'Error: Unable to authenticate with openai_client.'
             self.logger.error(f"OpenaiClient {content}", e)
         except RateLimitError as e:
             content = f'Error: Model {request["model"]} is currently overloaded with other ' \
-                      f'requests. '
+                      f'requests.'
             self.logger.error(f"OpenaiClient {content}", e)
         except Exception as e:
             content = f'Error: Unknown Error.'
@@ -80,9 +75,6 @@ class OpenaiClient(IOpenaiClient):
             "total_tokens": total_tokens
         }
 
-        role = "assistant"
-        # content = "all good.."
-
         data['messages'].append({"role": role, "content": content})
 
         return data
@@ -92,14 +84,11 @@ class OpenaiClient(IOpenaiClient):
 
         content = None
 
-        u = messages[1]['content']
-        m = [{"role": "user", "content": f"tl;dr of the following text, max 3 words: {u}"}]
-
         try:
-            self.logger.debug("Getting chat completition..")
+            self.logger.debug("Getting chat completion..")
             completion = openai.ChatCompletion.create(
                 model=model,
-                messages=m)
+                messages=messages)
 
             content = completion.choices[0].message.content
         except Exception as e:

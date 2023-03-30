@@ -26,7 +26,7 @@ The install script will:
    - gptalk-server
    - redis
 2. create a docker network for the containers to communicate between each other
-3. create a default user configuration file within {your-install-folder}/gptalk-server/user_config/config.yml
+3. create a default user configuration file within {your-install-folder}/server/user_config/config.yml
 ________________________________________________________________
 ## Overview:
 ### Mobile View

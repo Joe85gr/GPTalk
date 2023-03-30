@@ -6,6 +6,11 @@ export interface ChatHadlerParams {
     setChatLog: (response: ModelReply) => void;
 }
 
+export interface Model {
+  label: string;
+  value: string;
+}
+
 export class ChatHadler {
     setStoredConversations: (modelReply: ModelReply[]) => void;
     setChatId: (chat_id: string) => void;
@@ -18,8 +23,14 @@ export class ChatHadler {
     }
    
     async GetModels() {
-        const models = await GetModels();
-        return models;
+        const response = await GetModels();
+
+        if (!response.message) {
+          return response.data.filter((model: string) => { return model.includes("gpt")})
+            .map((model: string) => { return { label: model, value: model } as Model })
+        }
+
+        return [{ label: "error", value: "..." }] as Model[];
     }
 
     async LoadChats() { 

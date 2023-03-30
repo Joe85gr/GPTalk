@@ -1,20 +1,20 @@
 import json
 from logging import Logger
 
-from infrastructure.chatgpt import OpenaiClient
-from config.configuration import OpenaiConfig
-from infrastructure.db import IDatabase
-from infrastructure.cache import Cache
+from src.infrastructure.openai_client import IOpenaiClient
+from src.config.configuration import OpenaiConfig
+from src.infrastructure.db import IDatabase
+from src.infrastructure.cache import ICache
 
 
 class MessageService:
     def __init__(self,
-                 openai: OpenaiClient,
+                 openai_client: IOpenaiClient,
                  db: IDatabase,
                  config: OpenaiConfig,
                  logger: Logger,
-                 cache: Cache):
-        self.openai = openai
+                 cache: ICache):
+        self.openai = openai_client
         self.db = db
         self.config = config
         self.logger = logger
@@ -56,9 +56,7 @@ class MessageService:
 
     def get_conversation(self, chat_id):
         conversation = self.db.get_chat(chat_id)
-        if conversation is not None:
-            return json.loads(conversation)
-        return None
+        return json.loads(conversation)
 
     def delete_conversation(self, chat_id):
         deleted = self.db.delete_chat(chat_id)
@@ -76,9 +74,20 @@ class MessageService:
         response = self.openai.get_model_response(request)
 
         if "chat_description" not in response:
-            messages = [m for m in request['messages']]
-            model = request['model']
-            response['chat_description'] = self.openai.get_chat_description(messages, model)
+            chatDescription = self.get_tldr(request)
+            if chatDescription is not None:
+                response['chat_description'] = chatDescription
 
         self.db.update_chat(response['chat_id'], json.dumps(response))
         return response
+
+    def get_tldr(self, request: dict):
+        messages = [m for m in request['messages']]
+        model = request['model']
+
+        conversation = '\n'.join([message['content'] for message in messages if 'system' not in message['role']])
+        requestMessages = [{"role": "user", "content": f"tl;dr of the following text, max 3 words: \n{conversation}"}]
+
+        chatDescription = self.openai.get_chat_description(requestMessages, model)
+
+        return chatDescription
