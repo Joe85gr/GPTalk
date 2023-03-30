@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.9", "3.10"]
 
     steps:
       - uses: actions/checkout@v3
@@ -23,11 +23,14 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd gptalk-server
           python -m pip install --upgrade pip
-          pip install pytest
           pip install pytest-cov
+          pip install pytest
           pip install requests-mock
-          pip install -r ./gptalk-server/requirements.txt
+          pip install -r requirements.txt
 
       - name: Run Tests
-        run: pytest --cov-config=./gptalk-server/tests/.coveragerc --cov=./gptalk-server/src ./gptalk-server/tests/ --cov-report term-missing
+        run: |
+          cd gptalk-server
+          pytest --cov-config=tests/.coveragerc --cov=src tests/ --cov-report term-missing
