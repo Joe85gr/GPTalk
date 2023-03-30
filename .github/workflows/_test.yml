@@ -30,4 +30,4 @@ jobs:
           pip install -r ./gptalk-server/requirements.txt
 
       - name: Run Tests
-        run: pytest --cov-config=./gptalk-server/tests/.coveragerc --cov=src tests/ --cov-report term-missing
+        run: pytest --cov-config=./gptalk-server/tests/.coveragerc --cov=./gptalk-server/src ./gptalk-server/tests/ --cov-report term-missing
