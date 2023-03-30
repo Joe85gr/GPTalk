@@ -23,14 +23,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd gptalk-server
           python -m pip install --upgrade pip
-          pip install pytest-cov
           pip install pytest
-          pip install requests-mock
-          pip install -r requirements.txt
+          pip install pytest-cov
+          pip install -r gptalk-server/requirements.txt
 
       - name: Run Tests
         run: |
-          cd gptalk-server
-          pytest --cov-config=tests/.coveragerc --cov=src tests/ --cov-report term-missing
+          python -m pytest --cov-config=gptalk-server/tests/.coveragerc --cov=src gptalk-server/tests/ --cov-report term-missing
