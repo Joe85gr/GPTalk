@@ -1,12 +1,15 @@
 import { Configuration } from "../global";
 import { FilterMessages } from '../Utilities'
 
-export interface Model {
-  label: string;
-  value: string;
-}
 
-export async function GetModels() {
+
+
+export interface ApiResponse { 
+  data: string[];
+  message?: string;
+ }
+
+export async function GetModels(): Promise<ApiResponse> {
     try {
       const response = await fetch(`${Configuration.API_BASE_URL}/models/`, {
         method: "GET",
@@ -15,17 +18,19 @@ export async function GetModels() {
         }
       });
 
-      const data = await response.json()
-      const m = data.models
-        .filter((model: string) => { return model.includes("gpt")})
-        .map((model: string) => { return { label: model, value: model } as Model })
+      const data = await response.json();
 
-      return m;
+      if (data.data.reply === "success") {
+        const models = data.data.models;
+        return { data: models } as ApiResponse;
+      }
+
+      return  { message: data.data.reply, data: [] } as ApiResponse;
     } 
     catch (error) {
       console.log(error);
-      return [];
-    }
+      return { message: "error", data: [] } as ApiResponse; 
+    };
   }
 
 export interface Message {

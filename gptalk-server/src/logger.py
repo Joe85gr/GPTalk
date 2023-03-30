@@ -1,4 +1,5 @@
 import logging.handlers
+from abc import ABC, abstractmethod
 from logging import Logger
 from pathlib import Path
 
@@ -6,7 +7,13 @@ from constants import LOGS_PATH, APP_NAME
 from config.configuration import GPTalkConfig
 
 
-class GPTalkLog:
+class IGPTalkLog(ABC):
+    @abstractmethod
+    def get_logger(self, name) -> Logger:
+        pass
+
+
+class GPTalkLog(IGPTalkLog):
     def __init__(self, config: GPTalkConfig):
         self.config = config
 

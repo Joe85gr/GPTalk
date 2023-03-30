@@ -1,9 +1,14 @@
-import { GetModels, GetConversation, GetConversations, ModelReply, CreateChat, GetReply, DeleteConversation } from "./infrastructure/client";
+import { GetModels, GetConversation, GetConversations, ModelReply, CreateChat, GetReply, DeleteConversation, Model } from "./infrastructure/client";
 
 export interface ChatHadlerParams {
     setStoredConversations: (modelReply: ModelReply[]) => void;
     setChatId: (chat_id: string) => void;
     setChatLog: (response: ModelReply) => void;
+}
+
+export interface Model {
+  label: string;
+  value: string;
 }
 
 export class ChatHadler {
@@ -18,8 +23,14 @@ export class ChatHadler {
     }
    
     async GetModels() {
-        const models = await GetModels();
-        return models;
+        const response = await GetModels();
+
+        if (!response.message) {
+          return response.data.filter((model: string) => { return model.includes("gpt")})
+            .map((model: string) => { return { label: model, value: model } as Model })
+        }
+
+        return [{ label: "error", value: "..." }] as Model[];
     }
 
     async LoadChats() { 

@@ -1,10 +1,10 @@
 import json
 from logging import Logger
 
-from infrastructure.chatgpt import OpenaiClient
-from config.configuration import OpenaiConfig
-from infrastructure.db import IDatabase
-from infrastructure.cache import Cache
+from src.infrastructure.openai_client import OpenaiClient
+from src.config.configuration import OpenaiConfig
+from src.infrastructure.db import IDatabase
+from src.infrastructure.cache import Cache
 
 
 class MessageService:
