@@ -3,8 +3,10 @@
 set -e
 
 app_name='gptalk'
-client_name=$app_name-client
-server_name=$app_name-server
+server='server'
+client='client'
+client_name=$app_name-$client
+server_name=$app_name-$server
 redis_name=$app_name-redis
 network_name=$app_name-network
 user_config_dir='user_config'
@@ -44,9 +46,9 @@ if [ -z "${API_KEY}" ]; then
   exit 1
 fi
 
-if [[ ! -e ./$server_name/$user_config_dir ]]; then
-    mkdir ./$server_name/$user_config_dir
-    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n    origins:\n    - http://localhost:'${CLIENT_PORT}$'\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server_name/$user_config_dir/config.yml
+if [[ ! -e ./$server/$user_config_dir ]]; then
+    mkdir ./$server/$user_config_dir
+    echo $'gptalk:\n    logging_level: INFO\n    max_log_size: 10 # max log size in MB\n    origins:\n    - http://localhost:'${CLIENT_PORT}$'\n\nopenai:\n    behaviour: "talk like a bro, use markdown code highlighting"' >> ./$server/$user_config_dir/config.yml
 fi
 
 # Removes existing containers if exists
@@ -63,5 +65,5 @@ docker network create --subnet=172.25.0.0/16 --driver bridge $network_name || tr
 
 # Run Docker containers
 docker run -d --name redis --network $network_name --ip 172.25.0.12 -p 6379:6379 redis || true
-docker run -d --name $server_name --network $network_name --ip 172.25.0.10 -p ${SERVER_PORT}:8222 -v $(pwd)/$server_name/user_config:/app/user_config -e OPENAI_API_KEY=${API_KEY} $server_name:latest
+docker run -d --name $server_name --network $network_name --ip 172.25.0.10 -p ${SERVER_PORT}:8222 -v $(pwd)/$server/user_config:/app/user_config -e OPENAI_API_KEY=${API_KEY} $server_name:latest
 docker run -d --name $client_name --network $network_name --ip 172.25.0.11 -p ${CLIENT_PORT}:80 $client_name:latest

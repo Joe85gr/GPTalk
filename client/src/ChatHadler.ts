@@ -1,4 +1,4 @@
-import { GetModels, GetConversation, GetConversations, ModelReply, CreateChat, GetReply, DeleteConversation, Model } from "./infrastructure/client";
+import { GetModels, GetConversation, GetConversations, ModelReply, CreateChat, GetReply, DeleteConversation } from "./infrastructure/client";
 
 export interface ChatHadlerParams {
     setStoredConversations: (modelReply: ModelReply[]) => void;

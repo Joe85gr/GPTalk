@@ -16,4 +16,6 @@ COPY ./server/ /app
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8222", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
+ENV PYTHONPATH /app/src
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8222", "-k", "uvicorn.workers.UvicornWorker", "src.main:app"]
