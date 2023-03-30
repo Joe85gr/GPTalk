@@ -52,3 +52,4 @@ package-lock.json
 gptalk-server/user_config
 **/.env
 **/.pytest_cache
+**/.coverage

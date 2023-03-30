@@ -36,3 +36,5 @@ class Cache:
                     self.logger.error("Cannot ping redis.")
             except Exception as e:
                 self.logger.error("Unknown error with redis.", e)
+
+        return False

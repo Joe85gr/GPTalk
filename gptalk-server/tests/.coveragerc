@@ -1,0 +1,5 @@
+# .coveragerc to control pytest coverage
+
+[run]
+branch = True
+omit = *__init__.py, src/main.py, src/logger.py, src/constants.py, src/infrastructure/db.py
