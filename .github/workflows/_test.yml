@@ -30,4 +30,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          python -m pytest --cov-config=gptalk-server/tests/.coveragerc --cov=src gptalk-server/tests/ --cov-report term-missing
+          python -m pytest --cov-config=gptalk-server/tests/.coveragerc --cov=gptalk-server/src gptalk-server/tests/ --cov-report term-missing
